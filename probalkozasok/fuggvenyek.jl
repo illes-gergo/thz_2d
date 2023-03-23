@@ -52,6 +52,7 @@ function nTHzo(omega, T, cry)
         nTHz = real.(sqrt.(er(omega, T, cry)))
 
     end
+    return nTHz
 end
 
 function n2value(cry)
