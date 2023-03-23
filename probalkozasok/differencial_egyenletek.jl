@@ -4,7 +4,9 @@ function imp_terjedes(t, Y)
 end
 
 function thz_generation(t, Y)
-    Eop = ifft_kx_x * ifftshift(Y,2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
+    Eop = ifft_kx_x * ifftshift(Y, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
+    conv_part = fast_forward_convolution(e0 * d_eff * Eop, conj(Eop)) * dOmega
+    return fftshift(fft_x_kx * conv_part, 2) ./ kxMax .* exp.(1im .* kz_omegaTHz .* t)
 end
 
 function thz_egyszeru(t, Y)
@@ -12,6 +14,24 @@ function thz_egyszeru(t, Y)
     ATHz = Y[:, :, 2]
 
     dAopdz = @spawn imp_terjedes(t, Aop)
+    dTHz_gen = @spawn begin
+        temp_val = -1im .* comegaTHz .^ 2 ./ 2 ./ kz_omegaTHz ./ e0 ./ c0 .^ 2 .* thz_generation(t, Aop)
+        temp_val[isnan.(temp_val)] .= 0
+        return temp_val
+    end
 
-    return cat(dAopdz.result, dATHz.result, dims=3)
+    return cat(fetch(dAopdz), fetch(dTHz_gen), dims=3)
+end
+
+function plan_fast_conv(a, b)
+    a_ = vcat(padding, a)
+    b_ = vcat(b, padding)
+    global _, fast_conv_plan = FourierTools.plan_conv(a_, b_, 1)
+    global fast_conv_fft_plan = plan_fft(b_, 1)
+end
+
+function fast_forward_convolution(a, b)
+    a_ = vcat(padding, a)
+    b_ = vcat(b, padding)
+    return fast_conv_plan(circshift(a_, (1, 0)), fast_conv_fft_plan * (reverse((b_), dims=(1))))[floor(Int, end / 2)+1:end, :]
 end

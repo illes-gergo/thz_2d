@@ -17,15 +17,16 @@ function conv_manual(a::Array{Float64}, b::Array{Float64})
 end
 
 
-
-a = vcat(zeros(1000, 1000), rand(1000, 1000) .+ 1im * rand(1000, 1000))
-b = vcat(rand(1000, 1000) .+ 1im * rand(1000, 1000), zeros(1000, 1000))
+a = rand(10, 10) .+ 1im * rand(10, 10)
+b = rand(10, 10) .+ 1im * rand(10, 10)
+a_ = vcat(zeros(10, 10), a)
+b_ = vcat(b, zeros(10, 10))
 
 @time A = conv_manual((a), (b))
-_, B_ = FourierTools.plan_conv(circshift(a, (1, 0)), reverse((b), dims=(1)), 1)
-B_2 = plan_fft(reverse((b), dims=(1)), 1)
+_, B_ = FourierTools.plan_conv(a_, b_, 1)
+B_2 = plan_fft(b_, 1)
 
-@time B = B_(circshift(a, (1, 0)), B_2*(reverse((b), dims=(1))))
+@time B = B_(circshift(a_, (1, 0)), B_2 * (reverse((b_), dims=(1))))[floor(Int, end / 2)+1:end, :]
 
 plotly()
 plot(A[:, 5])
