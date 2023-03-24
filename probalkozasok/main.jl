@@ -52,15 +52,13 @@ neo(lambda::Number, T, cry) = 1
 n = neo(clambda, 300, cry)
 
 k_omega = n .* comega ./ c0
-k_omega[1, :] = k_omega[2, :]
 kx_omega = k_omega .* sin(gamma)
 kz_omega = k_omega .* cos(gamma)
 
 nTHz = nTHzo(comegaTHz, 300, cry)
 
-k_omegaTHz = n .* comegaTHz ./ c0
-kz_omegaTHz = sqrt.(Complex.(k_omegaTHz .^ 2 - ckx .^ 2))
-kz_omegaTHz -= 1im * imag(kz_omegaTHz)
+k_omegaTHz = nTHz .* comegaTHz ./ c0
+kz_omegaTHz = real.(sqrt.(Complex.(k_omegaTHz .^ 2 - ckx .^ 2)))
 
 Axt = gauss_impulzus_omega0(E0, sigma_t, sigma_x, lambda0, gamma, ct, cx)
 
@@ -75,6 +73,8 @@ ifft_kx_x = plan_ifft(Axt, 2)
 
 padding = zeros(size(Axt))
 plan_fast_conv(Axt, Axt)
+
+alpha = aTHzo(comegaTHz, 300, cry)
 
 Axo = fftshift(fft_t_o * Axt, 1) ./ omegaMax .* exp.(+1im .* kx_omega .* cx)
 Akxo = fftshift(fft_x_kx * Axo / kxMax, 2)
@@ -118,7 +118,7 @@ let A_kompozit = A_kompozit
             local Axt = ifft_o_t * ifftshift(Axo .* omegaMax, 1)
             display(contourf(x, t, real.(Axt .* exp.(1im .* omega0 .* t)), linewidth=0, colormap=:jet))
             local ATHz_kx_o = A_kompozit[:, :, 2]
-            local ATHz_xo = ifft_kx_x * ifftshift(ATHz_kx_o, 2) .* kxMax .* exp.(-1im .* kz_omegaTHz .* z[ii+1])
+            local ATHz_xo = ifft_kx_x * ifftshift(ATHz_kx_o, 2) .* kxMax .* exp.(-1im .* k_omegaTHz .* z[ii+1])
             local ATHz_xt = ifft_o_t * ATHz_xo * omegaMax
             contourf(x, t, real.(ATHz_xt), linewidth=0, colormap=:jet)
             local _, max_indices = findmax(abs.(Axt))

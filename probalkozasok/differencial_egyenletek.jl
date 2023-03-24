@@ -5,8 +5,8 @@ end
 
 function thz_generation(t, Y)
     Eop = ifft_kx_x * ifftshift(Y, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
-    conv_part = fast_forward_convolution(e0 * d_eff * Eop, conj(Eop)) * dOmega
-    return fftshift(fft_x_kx * conv_part, 2) ./ kxMax .* exp.(1im .* kz_omegaTHz .* t)
+    conv_part = fast_forward_convolution(Eop, conj(Eop)) * e0 * d_eff * dOmega
+    return fftshift(fft_x_kx * (conv_part), 2) ./ kxMax
 end
 
 function thz_egyszeru(t, Y)
@@ -15,7 +15,7 @@ function thz_egyszeru(t, Y)
 
     dAopdz = @spawn imp_terjedes(t, Aop)
     dTHz_gen = @spawn begin
-        temp_val = -1im .* comegaTHz .^ 2 ./ 2 ./ kz_omegaTHz ./ e0 ./ c0 .^ 2 .* thz_generation(t, Aop)
+        temp_val = -1im .* comegaTHz .^ 2 ./ 2 ./ kz_omegaTHz ./ e0 ./ c0 .^ 2 .* thz_generation(t, Aop) .* exp.(1im .* k_omegaTHz .* t) - alpha/2 .* ATHz
         temp_val[isnan.(temp_val)] .= 0
         return temp_val
     end
