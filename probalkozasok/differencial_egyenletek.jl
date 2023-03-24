@@ -15,7 +15,7 @@ function thz_egyszeru(t, Y)
 
     dAopdz = @spawn imp_terjedes(t, Aop)
     dTHz_gen = @spawn begin
-        temp_val = -1im .* comegaTHz .^ 2 ./ 2 ./ kz_omegaTHz ./ e0 ./ c0 .^ 2 .* thz_generation(t, Aop) .* exp.(1im .* k_omegaTHz .* t) - alpha/2 .* ATHz
+        temp_val = -1im .* comegaTHz .^ 2 ./ 2 ./ kz_omegaTHz ./ e0 ./ c0 .^ 2 .* thz_generation(t, Aop) .* exp.(1im .* k_omegaTHz .* t) - alpha / 2 .* ATHz
         temp_val[isnan.(temp_val)] .= 0
         return temp_val
     end
@@ -34,4 +34,10 @@ function fast_forward_convolution(a, b)
     a_ = vcat(padding, a)
     b_ = vcat(b, padding)
     return fast_conv_plan(circshift(a_, (1, 0)), fast_conv_fft_plan * (reverse((b_), dims=(1))))[floor(Int, end / 2)+1:end, :]
+end
+
+function fast_backward_convolution(a, b)
+    a_ = vcat(padding, a)
+    b_ = vcat(b, padding)
+    return reverse(fast_conv_plan(circshift(reverse(a_, dims=1), (1, 0)), fast_conv_fft_plan * (reverse((b_), dims=(1)))), dims=1)[floor(Int, end / 2)+1:end, :]
 end
