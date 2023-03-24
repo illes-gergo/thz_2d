@@ -12,6 +12,6 @@ lambda0 = 10.6e-6
 E0 = 1e8
 cry = 4;
 
-gamma = deg2rad(22.8)
+gamma = deg2rad(18)
 
 dz = 5e-7

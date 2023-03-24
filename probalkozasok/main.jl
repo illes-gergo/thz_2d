@@ -2,7 +2,7 @@ using LazyGrids, FFTW, Plots, FourierTools, Base.Threads
 
 # FFT -> /omegaMAX ; IFFT -> * omegaMAX
 
-default(size=(800, 800), levels=50)
+default(levels=50)
 
 include("valtozok.jl")
 include("gauss_impulzus.jl")
@@ -86,7 +86,7 @@ display(contourf(kx, omega, abs.(Akxo), colormap=:jet, linewidth=0, xlim=[-kxMax
 display(plot(omega, abs.(Akxo[:, Int(end / 2)])))
 display(contourf(x, t, real.(Axt2 .* exp.(1im .* omega0 .* t)), colormap=:jet, linewidth=0))
  =#
-z = Array{Float64}(undef, N * 50)
+z = Array{Float64}(undef, N * 40)
 
 ATHz_kx_o = zeros(size(Akxo))
 
@@ -107,24 +107,22 @@ z[1] = 0;
         display(ii)
     end
 end =#
-
-let A_kompozit = A_kompozit
-    for ii in 1:(length(z)-1)
-        A_kompozit, z[ii+1] = RK4M(thz_egyszeru, z[ii], A_kompozit, dz)
-        if mod(ii, 100) == 0 || ii == 1
-            local Aop_kx_o = A_kompozit[:, :, 1]
-            #display(contourf(kx, omega, abs.(Akxo), linewidth=0, xlim=[-kxMax, kxMax] / 2, colormap=:jet))
-            local Axo = ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
-            local Axt = ifft_o_t * ifftshift(Axo .* omegaMax, 1)
-            display(contourf(x, t, real.(Axt .* exp.(1im .* omega0 .* t)), linewidth=0, colormap=:jet))
-            local ATHz_kx_o = A_kompozit[:, :, 2]
-            local ATHz_xo = ifft_kx_x * ifftshift(ATHz_kx_o, 2) .* kxMax .* exp.(-1im .* k_omegaTHz .* z[ii+1])
-            local ATHz_xt = ifft_o_t * ATHz_xo * omegaMax
-            contourf(x, t, real.(ATHz_xt), linewidth=0, colormap=:jet)
-            local _, max_indices = findmax(abs.(Axt))
-            display(scatter!([x[max_indices[2]]], [t[max_indices[1]]]))
-            #display(contourf(x, t, abs.(ATHz_kx_o), linewidth=0, colormap=:jet))
-        end
-        display(ii)
+for ii in 1:(length(z)-1)
+    global A_kompozit, z[ii+1] = RK4M(thz_egyszeru, z[ii], A_kompozit, dz)
+    if mod(ii, 100) == 0 || ii == 1
+        global Aop_kx_o = A_kompozit[:, :, 1]
+        #display(contourf(kx, omega, abs.(Akxo), linewidth=0, xlim=[-kxMax, kxMax] / 2, colormap=:jet))
+        global Axo = ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
+        global Axt = ifft_o_t * ifftshift(Axo .* omegaMax, 1)
+        p1 = contourf(x, t, real.(Axt .* exp.(1im .* omega0 .* t)), linewidth=0, colormap=:jet)
+        global ATHz_kx_o = A_kompozit[:, :, 2]
+        global ATHz_xo = ifft_kx_x * ifftshift(ATHz_kx_o, 2) .* kxMax .* exp.(-1im .* k_omegaTHz .* z[ii+1])
+        global ATHz_xt = ifft_o_t * ATHz_xo * omegaMax
+        p2 = contourf(x, t, real.(ATHz_xt), linewidth=0, colormap=:jet)
+        global _, max_indices = findmax(abs.(Axt))
+        (scatter!([x[max_indices[2]]], [t[max_indices[1]]]))
+        display(plot(p1, p2, size=[1200, 800]))
+        #display(contourf(x, t, abs.(ATHz_kx_o), linewidth=0, colormap=:jet))
     end
+    display(ii)
 end
