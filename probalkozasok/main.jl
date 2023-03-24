@@ -108,20 +108,20 @@ z[1] = 0;
     end
 end =#
 for ii in 1:(length(z)-1)
-    global A_kompozit, z[ii+1] = RK4M(thz_egyszeru, z[ii], A_kompozit, dz)
+    global A_kompozit, z[ii+1] = RK4M(thz_feedback, z[ii], A_kompozit, dz)
     if mod(ii, 100) == 0 || ii == 1
         global Aop_kx_o = A_kompozit[:, :, 1]
         #display(contourf(kx, omega, abs.(Akxo), linewidth=0, xlim=[-kxMax, kxMax] / 2, colormap=:jet))
         global Axo = ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
         global Axt = ifft_o_t * ifftshift(Axo .* omegaMax, 1)
-        p1 = contourf(x, t, real.(Axt .* exp.(1im .* omega0 .* t)), linewidth=0, colormap=:jet)
+        p1 = contourf(x, t, abs.(Axt .* exp.(1im .* omega0 .* t)), linewidth=0, colormap=:jet)
         global ATHz_kx_o = A_kompozit[:, :, 2]
-        global ATHz_xo = ifft_kx_x * ifftshift(ATHz_kx_o, 2) .* kxMax .* exp.(-1im .* k_omegaTHz .* z[ii+1])
+        global ATHz_xo = ifft_kx_x * ifftshift(ATHz_kx_o.* exp.(-1im .* k_omegaTHz .* z[ii+1]), 2) .* kxMax 
         global ATHz_xt = ifft_o_t * ATHz_xo * omegaMax
-        p2 = contourf(x, t, real.(ATHz_xt), linewidth=0, colormap=:jet)
+        p2 = contourf(x, t, real.(ATHz_xt)*1e-5, linewidth=0, colormap=:jet)
         global _, max_indices = findmax(abs.(Axt))
         (scatter!([x[max_indices[2]]], [t[max_indices[1]]]))
-        display(plot(p1, p2, size=[1200, 800]))
+        display(plot(p1, p2,size=[1200,600]))
         #display(contourf(x, t, abs.(ATHz_kx_o), linewidth=0, colormap=:jet))
     end
     display(ii)
