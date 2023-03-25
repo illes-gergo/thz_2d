@@ -1,10 +1,10 @@
-N = 250
+N = 100
 
 cry = 4 # GaAs
 
 x = range(-5, 5, N) * 1e-3 * 2
 
-t = range(-5, 5, 250) * 1e-12 * 1
+t = range(-5, 5, N) * 1e-12 * 1
 
 sigma_t = 1e-12
 sigma_x = 1e-3

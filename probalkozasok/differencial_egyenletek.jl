@@ -47,7 +47,7 @@ function thz_cascade(t, Aop, ATHz)
     temp_val1 = @spawn e0 .* d_eff .* fast_forward_convolution(Eop, conj(ETHz))
     temp_val2 = @spawn e0 .* d_eff .* fast_backward_convolution(Eop, ETHz)
     wait.([temp_val1, temp_val2])
-    return fft_x_kx * ((temp_val1.result .+ temp_val2.result) .* exp.(1im .* kx_omega .* cx)) / kxMax
+    return fftshift(fft_x_kx * ((temp_val1.result .+ temp_val2.result).* exp(-1im .* kx_omega .* cx)),2) / kxMax 
 end
 
 function thz_feedback(t, Y)
