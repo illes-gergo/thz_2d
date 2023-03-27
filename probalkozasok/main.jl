@@ -121,7 +121,7 @@ for ii in 1:(length(z)-1)
         p2 = heatmap(x, t, real.(ATHz_xt)*1e-5, linewidth=0, colormap=:jet)
         global _, max_indices = findmax(abs.(Axt))
         (scatter!([x[max_indices[2]]], [t[max_indices[1]]]))
-        display(plot(p1, p2,size=[1200,600]))
+        display(plot(p1, p2, layout=(1,2), size=[1200,600]))
         #display(contourf(x, t, abs.(ATHz_kx_o), linewidth=0, colormap=:jet))
     end
     display(ii)

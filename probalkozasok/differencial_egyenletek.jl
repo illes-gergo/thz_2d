@@ -42,10 +42,11 @@ function fast_backward_convolution(a, b)
 end
 
 function thz_cascade(t, Aop, ATHz)
-    Eop = ifft_kx_x * ifftshift(Aop, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
-    ETHz = ifft_kx_x * ifftshift(ATHz * kxMax .* exp.(-1im .* kz_omegaTHz .* t), 2)
-    temp_val1 = @spawn e0 .* d_eff .* fast_forward_convolution(Eop, conj(ETHz))
-    temp_val2 = @spawn e0 .* d_eff .* fast_backward_convolution(Eop, ETHz)
+    Eop = @spawn ifft_kx_x * ifftshift(Aop, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
+    ETHz = @spawn ifft_kx_x * ifftshift(ATHz * kxMax .* exp.(-1im .* kz_omegaTHz .* t), 2)
+    wait([Eop,ETHz])
+    temp_val1 = @spawn e0 .* d_eff .* fast_forward_convolution(Eop.result, conj(ETHz.result))
+    temp_val2 = @spawn e0 .* d_eff .* fast_backward_convolution(Eop.result, ETHz.result)
     wait.([temp_val1, temp_val2])
     return fft_x_kx * ((temp_val1.result .+ temp_val2.result) .* exp(+1im .* kx_omega .* cx)) / kxMax .* dOmega
 end
