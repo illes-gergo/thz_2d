@@ -131,4 +131,4 @@ end
 
 STR = Dates.format(now(), "yy-mm-dd HH:MM:SS")
 
-jldsave("STR"; z=z[end], cx, ct, comega, comegaTHz, ckx, Axt, ATHz_xt, Axo, Aop_kx_o, ATHz_kx_o, ATHz_xo)
+jldsave(STR; z=z[end], cx, ct, comega, comegaTHz, ckx, Axt, ATHz_xt, Axo, Aop_kx_o, ATHz_kx_o, ATHz_xo)
