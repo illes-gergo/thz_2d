@@ -1,11 +1,11 @@
 Nx = 500
-Nt = 250
+Nt = 500
 
 cry = 0 # GaAs
 
 
 sigma_t = 0.5e-12
-sigma_x = 1.5e-3
+sigma_x = 2e-3
 lambda0 = 1030e-9
 I0 = 100e13
 
@@ -18,4 +18,4 @@ z_end = 1e-3
 
 x = range(-sigma_x, sigma_x, Nx) * 8
 
-t = range(-sigma_t, sigma_t, Nt) * 4
+t = range(-sigma_t, sigma_t, Nt) * 8
