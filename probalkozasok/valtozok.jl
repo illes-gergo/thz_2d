@@ -1,10 +1,10 @@
-Nx = 500
-Nt = 500
+Nx = 250
+Nt = 250
 
 cry = 0 # GaAs
 
 
-sigma_t = 0.5e-12
+sigma_t = 1e-12
 sigma_x = 2e-3
 lambda0 = 1030e-9
 I0 = 100e13

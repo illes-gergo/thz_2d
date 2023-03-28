@@ -4,7 +4,6 @@ using LazyGrids, FFTW, FourierTools, Base.Threads, Plots, Dates, JLD2
 plotlyjs()
 default(levels=100, linewidth=0)
 
-include("valtozok.jl")
 include("gauss_impulzus.jl")
 include("diffegy_megoldo.jl")
 include("differencial_egyenletek.jl")
