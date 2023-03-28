@@ -44,11 +44,11 @@ end
 function thz_cascade(t, Aop, ATHz)
     Eop = @spawn ifft_kx_x * ifftshift(Aop, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
     ETHz = @spawn ifft_kx_x * ifftshift(ATHz * kxMax .* exp.(-1im .* kz_omegaTHz .* t), 2)
-    wait([Eop,ETHz])
+    wait.([Eop, ETHz])
     temp_val1 = @spawn e0 .* d_eff .* fast_forward_convolution(Eop.result, conj(ETHz.result))
     temp_val2 = @spawn e0 .* d_eff .* fast_backward_convolution(Eop.result, ETHz.result)
     wait.([temp_val1, temp_val2])
-    return fft_x_kx * ((temp_val1.result .+ temp_val2.result) .* exp(+1im .* kx_omega .* cx)) / kxMax .* dOmega
+    return fft_x_kx * ((temp_val1.result .+ temp_val2.result) .* exp.(+1im .* kx_omega .* cx)) / kxMax .* dOmega
 end
 
 function thz_feedback(t, Y)
@@ -60,7 +60,7 @@ function thz_feedback(t, Y)
         temp_val[isnan.(temp_val)] .= 0
         return temp_val
     end
-    dAopCsc = @spawn thz_cascade(t, Aop, ATHz) .* exp(1im .* kz_omega .* t)
+    dAopCsc = @spawn thz_cascade(t, Aop, ATHz) .* exp.(1im .* kz_omega .* t)
 
     wait.([dAop_lin, dTHz_gen, dAopCsc])
     #= println("Wait ok")
