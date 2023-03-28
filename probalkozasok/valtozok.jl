@@ -5,7 +5,7 @@ cry = 0 # GaAs
 
 
 sigma_t = 0.5e-12
-sigma_x = 1.0e-3
+sigma_x = 1.5e-3
 lambda0 = 1030e-9
 I0 = 100e13
 
