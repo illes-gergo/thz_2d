@@ -1,8 +1,8 @@
 using LazyGrids, FFTW, FourierTools, Base.Threads, Plots, Dates, JLD2
 
 # FFT -> /omegaMAX ; IFFT -> * omegaMAX
-plotlyjs()
-default(levels=100, linewidth=0)
+#plotlyjs()
+#default(levels=100, linewidth=0)
 
 include("gauss_impulzus.jl")
 include("diffegy_megoldo.jl")
@@ -115,14 +115,14 @@ for ii in 1:(length(z)-1)
         #display(heatmap(kx, omega, abs.(Akxo), linewidth=0, xlim=[-kxMax, kxMax] / 2, colormap=:jet))
         global Axo = ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
         global Axt = ifft_o_t * ifftshift(Axo .* omegaMax, 1)
-        p1 = heatmap(x, t, abs.(Axt .* exp.(1im .* omega0 .* t)), linewidth=0, colormap=:jet)
+        #p1 = heatmap(x, t, abs.(Axt .* exp.(1im .* omega0 .* t)), linewidth=0, colormap=:jet)
         global ATHz_kx_o = A_kompozit[:, :, 2]
         global ATHz_xo = ifft_kx_x * ifftshift(ATHz_kx_o .* exp.(-1im .* k_omegaTHz .* z[ii+1]), 2) .* kxMax
         global ATHz_xt = ifft_o_t * ATHz_xo * omegaMax
-        p2 = heatmap(x, t, real.(ATHz_xt) * 1e-5, linewidth=0, colormap=:jet)
-        global _, max_indices = findmax(abs.(Axt))
-        (scatter!([x[max_indices[2]]], [t[max_indices[1]]]))
-        display(plot(p1, p2, layout=(1, 2), size=[1200, 600]))
+        #p2 = heatmap(x, t, real.(ATHz_xt) * 1e-5, linewidth=0, colormap=:jet)
+        #global _, max_indices = findmax(abs.(Axt))
+        #(scatter!([x[max_indices[2]]], [t[max_indices[1]]]))
+        #display(plot(p1, p2, layout=(1, 2), size=[1200, 600]))
         #display(heatmap(x, t, abs.(ATHz_kx_o), linewidth=0, colormap=:jet))
     end
     display(ii)
