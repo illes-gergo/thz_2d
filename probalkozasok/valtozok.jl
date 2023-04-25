@@ -1,19 +1,19 @@
-Nx = 250
-Nt = 250
+Nx = 500
+Nt = 500
 
-cry = 0 # GaAs
+cry = 4 # GaAs
 
 
 sigma_t = 1e-12
 sigma_x = 2e-3
-lambda0 = 1030e-9
+lambda0 = 10.6e-6
 I0 = 100e13
 
-gamma = deg2rad(63.5)
+gamma = deg2rad(20)
 
-dz = 5e-7
+dz = 1e-6
 
-z_end = 1e-3
+z_end = 1e-3 + dz
 
 
 x = range(-sigma_x, sigma_x, Nx) * 8

@@ -1,7 +1,7 @@
 using LazyGrids, FFTW, FourierTools, Base.Threads, Plots, Dates, JLD2
 
 # FFT -> /omegaMAX ; IFFT -> * omegaMAX
-plotlyjs()
+
 default(levels=100, linewidth=0)
 
 include("valtozok.jl")
@@ -110,8 +110,8 @@ z[1] = 0;
     end
 end =#
 for ii in 1:(length(z)-1)
-    global A_kompozit, z[ii+1] = RK4M(thz_feedback, z[ii], A_kompozit, dz)
-    if mod(ii, 100) == 0 || ii == 1
+    global A_kompozit, z[ii+1] = RK4M(thz_feedback_n2, z[ii], A_kompozit, dz)
+    if (mod(ii, 100) == 0 || ii == 1 ) && true
         global Aop_kx_o = A_kompozit[:, :, 1]
         #display(heatmap(kx, omega, abs.(Akxo), linewidth=0, xlim=[-kxMax, kxMax] / 2, colormap=:jet))
         global Axo = ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
