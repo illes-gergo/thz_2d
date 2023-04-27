@@ -109,9 +109,12 @@ z[1] = 0;
         display(ii)
     end
 end =#
+STR = Dates.format(now(), "yy-mm-dd HH-MM-SS")
+#STR = "elojel_minusz"
 for ii in 1:(length(z)-1)
     global A_kompozit, z[ii+1] = RK4M(thz_feedback_n2, z[ii], A_kompozit, dz)
-    if (mod(ii, 100) == 0 || ii == 1 ) && true
+    #if (mod(ii, 100) == 0 || ii == 1 ) && false
+    if ii == length(z) - 1
         global Aop_kx_o = A_kompozit[:, :, 1]
         #display(heatmap(kx, omega, abs.(Akxo), linewidth=0, xlim=[-kxMax, kxMax] / 2, colormap=:jet))
         global Axo = ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
@@ -129,6 +132,6 @@ for ii in 1:(length(z)-1)
     display(ii)
 end
 
-STR = Dates.format(now(), "yy-mm-dd HH-MM-SS")
+
 
 jldsave(STR * ".jld2"; z=z[end], cx, ct, comega, comegaTHz, ckx, Axt, ATHz_xt, Axo, Aop_kx_o, ATHz_kx_o, ATHz_xo)

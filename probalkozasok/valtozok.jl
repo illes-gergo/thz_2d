@@ -9,7 +9,7 @@ sigma_x = 2e-3
 lambda0 = 10.6e-6
 I0 = 100e13
 
-gamma = deg2rad(20)
+gamma = deg2rad(21)
 
 dz = 1e-6
 
