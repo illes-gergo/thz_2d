@@ -41,10 +41,13 @@ lambda0 = 2 * pi * c0 / omega0
 
 comega = comega_ .+ omega0
 
+comegaSHG = comega_ .+ 2 * omega0
+
 comegaTHz = comega_ .- omega[1]
 
 clambda = c0 ./ comega * 2 * pi
 
+cLambdaSHG = c0 ./ comegaSHG * 2 * pi
 
 #= neo(lambda::Array, T, cry) = ones(size(lambda)...)
 neo(lambda::Number, T, cry) = 1
@@ -54,6 +57,10 @@ n = neo(clambda, 300, cry)
 k_omega = n .* comega ./ c0
 kx_omega = k_omega .* sin(gamma)
 kz_omega = k_omega .* cos(gamma)
+
+k_omegaSHG = neo(cLambdaSHG, 300, cry) .* comegaSHG ./ c0
+kx_omegaSHG = k_omega .* sin(gamma)
+kz_omegaSHG = k_omega .* cos(gamma)
 
 nTHz = nTHzo(comegaTHz, 300, cry)
 
@@ -92,7 +99,9 @@ z = Array{Float64}(undef, floor(Int, z_end / dz))
 
 ATHz_kx_o = zeros(size(Akxo))
 
-A_kompozit = cat(Akxo, ATHz_kx_o, dims=3)
+ASH = copy(ATHz_kx_o)
+
+A_kompozit = cat(Akxo, ATHz_kx_o, ASH, dims=3)
 
 z[1] = 0;
 
@@ -114,7 +123,7 @@ STR = Dates.format(now(), "yy-mm-dd HH-MM-SS")
 for ii in 1:(length(z)-1)
     global A_kompozit, z[ii+1] = RK4M(thz_feedback_n2, z[ii], A_kompozit, dz)
     #if (mod(ii, 100) == 0 || ii == 1 ) && false
-    if ii == length(z) - 1 || mod(ii,100) == 0 || ii == 1
+    if ii == length(z) - 1 || mod(ii, 100) == 0 || ii == 1
         global Aop_kx_o = A_kompozit[:, :, 1]
         #display(heatmap(kx, omega, abs.(Akxo), linewidth=0, xlim=[-kxMax, kxMax] / 2, colormap=:jet))
         global Axo = ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
