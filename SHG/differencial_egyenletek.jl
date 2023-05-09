@@ -120,7 +120,7 @@ function SH_OP_INTERACTION(t, Aop, ASH)
     ESH = @spawn ifft_kx_x * ifftshift(ASH, 2) * kxMax .* exp.(-1im .* kx_omegaSHG .* cx - 1im .* kz_omegaSHG .* t)
     wait.([Eop, ESH])
     conv_part = fast_forward_convolution(conj(Eop.result), circshift((ESH.result),(SHGSHIFT,0))) * e0 * d_eff * dOmega    
-    return fftshift(fft_x_kx * (conv_part .* exp.(+1im .* kx_omegaSHG .* cx)) ./ kxMax, 2)
+    return fftshift(fft_x_kx * (conv_part .* exp.(+1im .* kx_omega .* cx)) ./ kxMax, 2)
 end
 
 function thz_feedback_n2_SHG(t, Y)
