@@ -2,7 +2,7 @@ using LazyGrids, FFTW, FourierTools, Base.Threads, Plots, Dates, JLD2
 
 # FFT -> /omegaMAX ; IFFT -> * omegaMAX
 
-default(levels=100, linewidth=0)
+default(levels=100)
 gr()
 include("valtozok.jl")
 include("gauss_impulzus.jl")
@@ -13,6 +13,8 @@ include("fuggvenyek.jl")
 const c0 = 3e8
 d_eff = deffTHz(cry)
 const e0 = 8.854187817e-12
+
+SHGSHIFT = Int(Nt/2)
 
 tMax = t[end] - t[1]
 dt = t[2] - t[1]
@@ -59,8 +61,8 @@ kx_omega = k_omega .* sin(gamma)
 kz_omega = k_omega .* cos(gamma)
 
 k_omegaSHG = neo(cLambdaSHG, 300, cry) .* comegaSHG ./ c0
-kx_omegaSHG = k_omega .* sin(gamma)
-kz_omegaSHG = k_omega .* cos(gamma)
+kx_omegaSHG = k_omegaSHG .* sin(gamma)
+kz_omegaSHG = k_omegaSHG .* cos(gamma)
 
 nTHz = nTHzo(comegaTHz, 300, cry)
 
@@ -121,21 +123,26 @@ end =#
 STR = Dates.format(now(), "yy-mm-dd HH-MM-SS")
 #STR = "elojel_minusz"
 for ii in 1:(length(z)-1)
-    global A_kompozit, z[ii+1] = RK4M(thz_feedback_n2, z[ii], A_kompozit, dz)
+    global A_kompozit, z[ii+1] = RK4M(thz_feedback_n2_SHG, z[ii], A_kompozit, dz)
     #if (mod(ii, 100) == 0 || ii == 1 ) && false
-    if ii == length(z) - 1 || mod(ii, 100) == 0 || ii == 1
+    if ii == length(z) - 1 || mod(ii, 10) == 0 || ii == 1
         global Aop_kx_o = A_kompozit[:, :, 1]
         #display(heatmap(kx, omega, abs.(Akxo), linewidth=0, xlim=[-kxMax, kxMax] / 2, colormap=:jet))
         global Axo = ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
         global Axt = ifft_o_t * ifftshift(Axo .* omegaMax, 1)
-        p1 = heatmap(x, t, abs.(Axt .* exp.(1im .* omega0 .* t)), linewidth=0, colormap=:jet)
+        global Aop_kx_oSH = A_kompozit[:, :, 3]
+        global AxoSH = ifft_kx_x * ifftshift(Aop_kx_oSH, 2) .* kxMax .* exp.(-1im .* kx_omegaSHG .* cx - 1im .* kz_omegaSHG .* z[ii+1])
+        global AxtSH = ifft_o_t * ifftshift(AxoSH .* omegaMax, 1)
+
+        p1 = heatmap(x, t, abs.(Axt .* exp.(1im .* omega0 .* ct)), linewidth=0, colormap=:jet)
+        p3 = heatmap(x, t, abs.(AxtSH .* exp.(2im .* omega0 .* ct)), linewidth=0, colormap=:jet)
         global ATHz_kx_o = A_kompozit[:, :, 2]
         global ATHz_xo = ifft_kx_x * ifftshift(ATHz_kx_o .* exp.(-1im .* k_omegaTHz .* z[ii+1]), 2) .* kxMax
         global ATHz_xt = ifft_o_t * ATHz_xo * omegaMax
         p2 = heatmap(x, t, real.(ATHz_xt) * 1e-5, linewidth=0, colormap=:jet)
         global _, max_indices = findmax(abs.(Axt))
         (scatter!([x[max_indices[2]]], [t[max_indices[1]]]))
-        display(plot(p1, p2, layout=(1, 2), size=[1200, 600]))
+        display(plot(p1, p2,p3, layout=(2, 2), size=[1200, 900]))
         #display(heatmap(x, t, abs.(ATHz_kx_o), linewidth=0, colormap=:jet))
     end
     display(ii)
