@@ -14,8 +14,6 @@ const c0 = 3e8
 d_eff = deffTHz(cry)
 const e0 = 8.854187817e-12
 
-SHGSHIFT = Int(Nt/2)
-
 tMax = t[end] - t[1]
 dt = t[2] - t[1]
 
@@ -120,10 +118,12 @@ z[1] = 0;
         display(ii)
     end
 end =#
+global plotInteraction::Bool = false
 STR = Dates.format(now(), "yy-mm-dd HH-MM-SS")
 #STR = "elojel_minusz"
 for ii in 1:(length(z)-1)
     global A_kompozit, z[ii+1] = RK4M(thz_feedback_n2_SHG, z[ii], A_kompozit, dz)
+    
     #if (mod(ii, 100) == 0 || ii == 1 ) && false
     if ii == length(z) - 1 || mod(ii, 10) == 0 || ii == 1
         global Aop_kx_o = A_kompozit[:, :, 1]

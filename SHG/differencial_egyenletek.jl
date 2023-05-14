@@ -49,7 +49,7 @@ end
 function fast_backward_convolutionSHG(a, b)
     a_ = vcat(padding, a)
     b_ = vcat(b, padding)
-    return reverse(fast_conv_plan(circshift(reverse(a_, dims=1), (1, 0)), fast_conv_fft_plan * (reverse((b_), dims=(1)))), dims=1)[floor(Int, end / 2)+1:end, :]
+    return reverse(fast_conv_plan(circshift(reverse(a_, dims=1), (1, 0)), fast_conv_fft_plan * (reverse((b_), dims=(1)))), dims=1)[floor(Int, end / 4)+1:floor(Int, 3 * end / 4), :]
 end
 
 function thz_cascade(t, Aop, ATHz)
@@ -111,7 +111,7 @@ end
 
 function SHG_GEN(t, Aop)
     Eop = ifft_kx_x * ifftshift(Aop, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
-    temp_val = e0 .* d_eff .* fast_backward_convolution(Eop, circshift(Eop, (SHGSHIFT, 0)))
+    temp_val = e0 .* d_eff .* fast_backward_convolution(Eop, fftshift(Eop, 1))
     return fftshift(fft_x_kx * (temp_val .* exp.(+1im .* kx_omegaSHG .* cx)) / kxMax .* dOmega, 2)
 end
 
@@ -119,7 +119,8 @@ function SH_OP_INTERACTION(t, Aop, ASH)
     Eop = @spawn ifft_kx_x * ifftshift(Aop, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
     ESH = @spawn ifft_kx_x * ifftshift(ASH, 2) * kxMax .* exp.(-1im .* kx_omegaSHG .* cx - 1im .* kz_omegaSHG .* t)
     wait.([Eop, ESH])
-    conv_part = fast_forward_convolution(conj(Eop.result), circshift((ESH.result),(SHGSHIFT,0))) * e0 * d_eff * dOmega    
+    conv_part = fast_forward_convolution(conj(Eop.result), fftshift(ESH.result, 1)) * e0 * d_eff * dOmega
+    
     return fftshift(fft_x_kx * (conv_part .* exp.(+1im .* kx_omega .* cx)) ./ kxMax, 2)
 end
 
