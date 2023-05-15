@@ -2,8 +2,8 @@ using Plots, JLD2, FFTW
 
 plotlyjs()
 
-db1 = jldopen("23-05-09 10-29-13.jld2")
-db2 = jldopen("23-05-09 10-29-12noSHG.jld2")
+db1 = jldopen("23-05-09 15-02-37.jld2")
+db2 = jldopen("23-05-09 15-02-37noSHG.jld2")
 AxtSHG = db1["/Axt"]
 Axt = db2["/Axt"]
 
