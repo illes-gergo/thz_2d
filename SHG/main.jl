@@ -103,7 +103,7 @@ ASH = copy(ATHz_kx_o)
 
 A_kompozit = cat(Akxo, ATHz_kx_o, ASH, dims=3)
 
-z[1] = 0;
+z[1] = 0
 
 
 #= let Akxo = Akxo
@@ -123,9 +123,14 @@ STR = Dates.format(now(), "yy-mm-dd HH-MM-SS")
 #STR = "elojel_minusz"
 for ii in 1:(length(z)-1)
     global A_kompozit, z[ii+1] = RK4M(thz_feedback_n2_SHG, z[ii], A_kompozit, dz)
-    
+    if mod(ii, 11) == 0
+        global plotInteraction = true
+    else
+        global plotInteraction = false
+    end
+
     #if (mod(ii, 100) == 0 || ii == 1 ) && false
-    if ii == length(z) - 1 || mod(ii, 10) == 0 || ii == 1
+    if ii == length(z) - 1 || mod(ii, 100) == 0 || ii == 1
         global Aop_kx_o = A_kompozit[:, :, 1]
         #display(heatmap(kx, omega, abs.(Akxo), linewidth=0, xlim=[-kxMax, kxMax] / 2, colormap=:jet))
         global Axo = ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
@@ -142,12 +147,10 @@ for ii in 1:(length(z)-1)
         p2 = heatmap(x, t, real.(ATHz_xt) * 1e-5, linewidth=0, colormap=:jet)
         global _, max_indices = findmax(abs.(Axt))
         (scatter!([x[max_indices[2]]], [t[max_indices[1]]]))
-        display(plot(p1, p2,p3, layout=(2, 2), size=[1200, 900]))
+        display(plot(p1, p2, p3, layout=(2, 2), size=[1200, 900]))
         #display(heatmap(x, t, abs.(ATHz_kx_o), linewidth=0, colormap=:jet))
+
     end
     display(ii)
 end
-
-
-
 jldsave(STR * ".jld2"; z=z[end], cx, ct, comega, comegaTHz, ckx, Axt, ATHz_xt, Axo, Aop_kx_o, ATHz_kx_o, ATHz_xo)

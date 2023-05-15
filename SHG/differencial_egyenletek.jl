@@ -59,7 +59,8 @@ function thz_cascade(t, Aop, ATHz)
     temp_val1 = @spawn e0 .* d_eff .* fast_forward_convolution(Eop.result, conj(ETHz.result))
     temp_val2 = @spawn e0 .* d_eff .* fast_backward_convolution(Eop.result, ETHz.result)
     wait.([temp_val1, temp_val2])
-    return fftshift(fft_x_kx * ((temp_val1.result .+ temp_val2.result) .* exp.(+1im .* kx_omega .* cx)) / kxMax .* dOmega, 2)
+    
+    return fftshift(fft_x_kx * ((temp_val1.result .+ temp_val2.result) .* exp.(+1im .* kx_omega .* cx)) ./ kxMax .* dOmega, 2)
 end
 
 function thz_feedback(t, Y)
@@ -83,7 +84,7 @@ function n2calc(t, Aop)
     Eop = @spawn ifft_o_t * ifftshift(ifft_kx_x * ifftshift(Aop, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t), 1) * omegaMax
     mult2 = e0 * omega0 * neo(lambda0, 300, cry) * n2value(cry) / 2
     wait(Eop)
-    aEop2 = (Eop.result) .* conj(Eop.result)
+    aEop2 = abs.(Eop.result).^2
     wait(mult1)
     return fftshift(fft_x_kx * (mult1.result .* fftshift(fft_t_o * (mult2 .* aEop2 .* Eop.result), 1) ./ omegaMax .* exp.(+1im .* kx_omega .* cx) ./ kxMax), 2)
 end
@@ -111,7 +112,7 @@ end
 
 function SHG_GEN(t, Aop)
     Eop = ifft_kx_x * ifftshift(Aop, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
-    temp_val = e0 .* d_eff .* fast_backward_convolution(Eop, fftshift(Eop, 1))
+    temp_val = e0 .* d_eff .* fast_backward_convolution(fftshift(Eop, 1), Eop)
     return fftshift(fft_x_kx * (temp_val .* exp.(+1im .* kx_omegaSHG .* cx)) / kxMax .* dOmega, 2)
 end
 
@@ -119,8 +120,13 @@ function SH_OP_INTERACTION(t, Aop, ASH)
     Eop = @spawn ifft_kx_x * ifftshift(Aop, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
     ESH = @spawn ifft_kx_x * ifftshift(ASH, 2) * kxMax .* exp.(-1im .* kx_omegaSHG .* cx - 1im .* kz_omegaSHG .* t)
     wait.([Eop, ESH])
-    conv_part = fast_forward_convolution(conj(Eop.result), fftshift(ESH.result, 1)) * e0 * d_eff * dOmega
-    
+    conv_part = fast_forward_convolution(conj(fftshift(Eop.result, 1)), (ESH.result)) * e0 * d_eff * dOmega
+#=     if plotInteraction
+        plotlyjs()
+        display(heatmap(abs.(conv_part)))
+        gr()
+        #readline()
+    end =#
     return fftshift(fft_x_kx * (conv_part .* exp.(+1im .* kx_omega .* cx)) ./ kxMax, 2)
 end
 
@@ -144,7 +150,7 @@ function thz_feedback_n2_SHG(t, Y)
     dASHNL.result .*= exp.(1im .* kz_omegaSHG .* t)
     sum_dAop = @spawn begin
         wait.([dAopCsc, dAopn2, dAopSH])
-        return (dAopCsc.result .- dAopn2.result .- dAopSH.result) .* exp.(1im .* kz_omega .* t)
+        return (-dAopCsc.result .- dAopn2.result .- dAopSH.result) .* exp.(1im .* kz_omega .* t)
     end
 
     wait.([sum_dAop, dTHz_gen, dAop_lin, dASHlin])
