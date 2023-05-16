@@ -1,4 +1,4 @@
-using LazyGrids, FFTW, FourierTools, Base.Threads, Plots, Dates, JLD2
+using LazyGrids, FFTW, FourierTools, Base.Threads, Plots, Dates, HDF5
 
 # FFT -> /omegaMAX ; IFFT -> * omegaMAX
 
@@ -13,6 +13,8 @@ include("fuggvenyek.jl")
 const c0 = 3e8
 d_eff = deffTHz(cry)
 const e0 = 8.854187817e-12
+
+SHG_SHIFT = floor(Int, Nt / 4)
 
 tMax = t[end] - t[1]
 dt = t[2] - t[1]
@@ -120,6 +122,9 @@ z[1] = 0
 end =#
 global plotInteraction::Bool = false
 STR = Dates.format(now(), "yy-mm-dd HH-MM-SS")
+
+FID = h5open(STR * ".hdf5", "w")
+entryCounter::Int = 1;
 #STR = "elojel_minusz"
 for ii in 1:(length(z)-1)
     global A_kompozit, z[ii+1] = RK4M(thz_feedback_n2_SHG, z[ii], A_kompozit, dz)
@@ -131,6 +136,7 @@ for ii in 1:(length(z)-1)
 
     #if (mod(ii, 100) == 0 || ii == 1 ) && false
     if ii == length(z) - 1 || mod(ii, 100) == 0 || ii == 1
+
         global Aop_kx_o = A_kompozit[:, :, 1]
         #display(heatmap(kx, omega, abs.(Akxo), linewidth=0, xlim=[-kxMax, kxMax] / 2, colormap=:jet))
         global Axo = ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
@@ -149,8 +155,9 @@ for ii in 1:(length(z)-1)
         (scatter!([x[max_indices[2]]], [t[max_indices[1]]]))
         display(plot(p1, p2, p3, layout=(2, 2), size=[1200, 900]))
         #display(heatmap(x, t, abs.(ATHz_kx_o), linewidth=0, colormap=:jet))
-
+        FID["/"*string(entryCounter)*"/Eop"] = Axt
+        global entryCounter += 1
     end
     display(ii)
 end
-jldsave(STR * ".jld2"; z=z[end], cx, ct, comega, comegaTHz, ckx, Axt, ATHz_xt, Axo, Aop_kx_o, ATHz_kx_o, ATHz_xo)
+close(FID)
