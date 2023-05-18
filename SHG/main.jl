@@ -135,7 +135,7 @@ for ii in 1:(length(z)-1)
     end
 
     #if (mod(ii, 100) == 0 || ii == 1 ) && false
-    if ii == length(z) - 1 || mod(ii, 100) == 0 || ii == 1
+    if ii == length(z) - 1 || mod(ii, 20) == 0 || ii == 1
 
         global Aop_kx_o = A_kompozit[:, :, 1]
         #display(heatmap(kx, omega, abs.(Akxo), linewidth=0, xlim=[-kxMax, kxMax] / 2, colormap=:jet))
@@ -156,8 +156,13 @@ for ii in 1:(length(z)-1)
         display(plot(p1, p2, p3, layout=(2, 2), size=[1200, 900]))
         #display(heatmap(x, t, abs.(ATHz_kx_o), linewidth=0, colormap=:jet))
         FID["/"*string(entryCounter)*"/Eop"] = Axt
+        FID["/"*string(entryCounter)*"/Aop"] = Axo
+        FID["/"*string(entryCounter)*"/ASH"] = AxoSH
+        FID["/"*string(entryCounter)*"ATHz_xo"] = ATHz_xo
+        FID["/"*string(entryCounter)*"ATHz_xt"] = ATHz_xt
         global entryCounter += 1
     end
     display(ii)
 end
+FID["/maxEntry"] = entryCounter - 1
 close(FID)

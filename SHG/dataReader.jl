@@ -1,16 +1,22 @@
-using Plots, JLD2, FFTW
+using Plots, HDF5, FFTW
 
 plotlyjs()
 
-db1 = jldopen("23-05-09 15-02-37.jld2")
-db2 = jldopen("23-05-09 15-02-37noSHG.jld2")
-AxtSHG = db1["/Axt"]
-Axt = db2["/Axt"]
+FID = h5open("SHG/23-05-16 17-10-35.hdf5", "r")
 
-p1 = heatmap(abs.(Axt))
-p2 = heatmap(abs.(AxtSHG))
+Energy0 = sum(abs.(collect(FID["1/Aop"])) .^ 2)
 
-M1 = maximum(abs.(Axt))
-M2 = maximum(abs.(AxtSHG))
+EnergySH = Array{Float64}(undef, 1)
+EnergyTHz = Array{Float64}(undef, 1)
+for i in 1:61
+    push!(EnergySH, sum(abs.(collect(FID["/"*string(i)*"/ASH"])) .^ 2))
+    push!(EnergyTHz, sum(abs.(collect(FID["/"*string(i)*"ATHz_xo"])) .^ 2))
+end
 
-plot(p1,p2)
+EfficSH = EnergySH ./ Energy0 .* neo(10.6e-6 / 2, 300, 4) ./ neo(10.6e-6, 300, 4) .* 100
+EfficTHz = EnergyTHz ./ Energy0 .* nTHzo(0.5e12 * 2 * pi, 300, 4) ./ neo(10.6e-6, 300, 4) .* 100
+
+display(plot(EfficSH))
+display(plot(EfficTHz))
+
+close(FID)
