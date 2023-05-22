@@ -4,11 +4,11 @@ using LazyGrids, FFTW, FourierTools, Base.Threads, Plots, Dates, HDF5
 
 default(levels=100)
 gr()
-include("valtozok.jl")
 include("gauss_impulzus.jl")
 include("diffegy_megoldo.jl")
 include("differencial_egyenletek.jl")
 include("fuggvenyek.jl")
+include("valtozok.jl")
 
 const c0 = 3e8
 d_eff = deffTHz(cry)
@@ -158,11 +158,17 @@ for ii in 1:(length(z)-1)
         FID["/"*string(entryCounter)*"/Eop"] = Axt
         FID["/"*string(entryCounter)*"/Aop"] = Axo
         FID["/"*string(entryCounter)*"/ASH"] = AxoSH
-        FID["/"*string(entryCounter)*"ATHz_xo"] = ATHz_xo
-        FID["/"*string(entryCounter)*"ATHz_xt"] = ATHz_xt
+        FID["/"*string(entryCounter)*"/ATHz_xo"] = ATHz_xo
+        FID["/"*string(entryCounter)*"/ATHz_xt"] = ATHz_xt
         global entryCounter += 1
     end
     display(ii)
 end
 FID["/maxEntry"] = entryCounter - 1
+FID["/gamma"] = rad2deg(gamma)
+FID["/z"] = z
+FID["/omega"] = omega
+FID["/omega0"] = omega0
+FID["/x"] = x
+FID["/t"] = t
 close(FID)
