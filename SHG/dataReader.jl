@@ -4,7 +4,8 @@ include("fuggvenyek.jl")
 
 plotlyjs()
 
-FID = h5open("23-05-22 15-00-50.hdf5", "r")
+#FID = h5open("23-05-24 11-03-45-no4511G.hdf5", "r")
+FID = h5open("23-05-23 12-04-23.hdf5", "r")
 
 Energy0 = sum(abs.(collect(FID["1/Aop"])) .^ 2)
 

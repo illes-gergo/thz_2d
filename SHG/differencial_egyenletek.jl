@@ -113,7 +113,7 @@ function thz_feedback_n2(t, Y)
     end
 
     wait.([sum_dAop, dTHz_gen, dAop_lin])
-    return cat(dAop_lin.result .- sum_dAop.result .* 1im .* comega .^ 2 ./ 2 ./ kz_omega ./ e0 ./ c0 .^ 2, dTHz_gen.result, dims=3)
+    return cat(dAop_lin.result .- sum_dAop.result .* 1im .* comega .^ 2 ./ 2 ./ kz_omega ./ e0 ./ c0 .^ 2, dTHz_gen.result, zeros(size(Aop)), dims=3)
 end
 
 function SHG_GEN(t, Aop)

@@ -11,7 +11,7 @@ include("fuggvenyek.jl")
 include("valtozok.jl")
 
 const c0 = 3e8
-d_eff = deffTHz(cry)
+d_eff = 2 * deffTHz(cry)
 const e0 = 8.854187817e-12
 
 SHG_SHIFT = floor(Int, Nt / 4)
@@ -127,7 +127,7 @@ FID = h5open(STR * ".hdf5", "w")
 entryCounter::Int = 1;
 #STR = "elojel_minusz"
 for ii in 1:(length(z)-1)
-    global A_kompozit, z[ii+1] = RK4M(thz_feedback_n2_SHG, z[ii], A_kompozit, dz)
+    global A_kompozit, z[ii+1] = RK4M(thz_feedback_n2, z[ii], A_kompozit, dz)
     if mod(ii, 11) == 0
         global plotInteraction = true
     else
@@ -169,6 +169,6 @@ FID["/gamma"] = rad2deg(gamma)
 FID["/z"] = z
 FID["/omega"] = omega
 FID["/omega0"] = omega0
-FID["/x"] = x
-FID["/t"] = t
+FID["/x"] = collect(x)
+FID["/t"] = collect(t)
 close(FID)
