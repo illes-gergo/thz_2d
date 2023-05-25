@@ -11,7 +11,8 @@ include("fuggvenyek.jl")
 include("valtozok.jl")
 
 const c0 = 3e8
-d_eff = 2 * deffTHz(cry)
+khi_eff = 2 * deffTHz(cry)
+d_eff = deff(cry)
 const e0 = 8.854187817e-12
 
 SHG_SHIFT = floor(Int, Nt / 4)

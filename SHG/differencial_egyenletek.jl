@@ -10,7 +10,7 @@ end
 
 function thz_generation(t, Y)
     Eop = ifft_kx_x * ifftshift(Y, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
-    conv_part = fast_forward_convolution(Eop, conj(Eop)) * e0 * d_eff * dOmega
+    conv_part = fast_forward_convolution(Eop, conj(Eop)) * e0 * khi_eff * dOmega
     return fftshift(fft_x_kx * (conv_part), 2) ./ kxMax
 end
 
@@ -62,8 +62,8 @@ function thz_cascade(t, Aop, ATHz)
     Eop = @spawn ifft_kx_x * ifftshift(Aop, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
     ETHz = @spawn ifft_kx_x * ifftshift(ATHz * kxMax .* exp.(-1im .* kz_omegaTHz .* t), 2)
     wait.([Eop, ETHz])
-    temp_val1 = @spawn e0 .* d_eff .* fast_forward_convolution(Eop.result, conj(ETHz.result))
-    temp_val2 = @spawn e0 .* d_eff .* fast_backward_convolution(Eop.result, ETHz.result)
+    temp_val1 = @spawn e0 .* khi_eff .* fast_forward_convolution(Eop.result, conj(ETHz.result))
+    temp_val2 = @spawn e0 .* khi_eff .* fast_backward_convolution(Eop.result, ETHz.result)
     wait.([temp_val1, temp_val2])
 
     return fftshift(fft_x_kx * ((temp_val1.result .+ temp_val2.result) .* exp.(+1im .* kx_omega .* cx)) ./ kxMax .* dOmega, 2)
