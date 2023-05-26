@@ -57,7 +57,7 @@ neo(lambda::Number, T, cry) = 1
  =#
 n = neo(clambda, 300, cry)
 
-k_omega = n .* comega ./ c0
+k_omega = n .* comega ./ c0 .+1e5
 kx_omega = k_omega .* sin(gamma)
 kz_omega = k_omega .* cos(gamma)
 

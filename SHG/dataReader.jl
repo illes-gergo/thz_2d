@@ -5,7 +5,7 @@ include("fuggvenyek.jl")
 plotlyjs()
 
 #FID = h5open("23-05-24 11-03-45-no4511G.hdf5", "r")
-FID = h5open("23-05-23 12-04-23.hdf5", "r")
+FID = h5open("23-05-25 14-35-44.hdf5", "r")
 
 Energy0 = sum(abs.(collect(FID["1/Aop"])) .^ 2)
 
@@ -28,7 +28,7 @@ EfficTHz = EnergyTHz ./ Energy0 .* nTHzo(0.5e12 * 2 * pi, 300, 4) ./ neo(10.6e-6
 gamma = deg2rad(read(FID["/gamma"]))
 
 display(plot(z, EfficTHz))
-FILE = readdlm("efficSH.txt")
+FILE = readdlm("SHG/efficSH.txt")
 plot(z, EfficSH)
 display(plot!(FILE[:, 1], FILE[:, 2]*100))
 
@@ -48,11 +48,11 @@ p4 = (heatmap(real.(ETHz)))
 
 display(plot(p1, p2, p3, p4, layout=(2, 2), size=(1200, 900)))
 
-p11 = (plot(abs.(Aop)[:,520]))
-p21 = (plot(abs.(Eop)[:,520]))
+p11 = (plot(abs.(Aop)[:,800]))
+p21 = (plot(abs.(Eop)[:,800]))
 
-p31 = (plot(abs.(ATHz)[:,520]))
-p41 = (plot(real.(ETHz)[:,520]))
+p31 = (plot(abs.(ATHz)[:,800]))
+p41 = (plot(real.(ETHz)[:,800]))
 
 display(plot(p11, p21, p31, p41, layout=(2, 2), size=(1200, 900)))
 
