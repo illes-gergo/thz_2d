@@ -5,7 +5,7 @@ include("fuggvenyek.jl")
 plotlyjs()
 
 #FID = h5open("23-05-24 11-03-45-no4511G.hdf5", "r")
-FID = h5open("23-05-25 14-35-44.hdf5", "r")
+FID = h5open("23-05-26 13-19-41.hdf5", "r")
 
 Energy0 = sum(abs.(collect(FID["1/Aop"])) .^ 2)
 
@@ -48,11 +48,11 @@ p4 = (heatmap(real.(ETHz)))
 
 display(plot(p1, p2, p3, p4, layout=(2, 2), size=(1200, 900)))
 
-p11 = (plot(abs.(Aop)[:,800]))
-p21 = (plot(abs.(Eop)[:,800]))
+p11 = (plot(abs.(Aop)[:,125]))
+p21 = (plot(abs.(Eop)[:,125]))
 
-p31 = (plot(abs.(ATHz)[:,800]))
-p41 = (plot(real.(ETHz)[:,800]))
+p31 = (plot(abs.(ATHz)[:,125]))
+p41 = (plot(real.(ETHz)[:,125]))
 
 display(plot(p11, p21, p31, p41, layout=(2, 2), size=(1200, 900)))
 

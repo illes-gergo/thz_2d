@@ -52,14 +52,11 @@ clambda = c0 ./ comega * 2 * pi
 
 cLambdaSHG = c0 ./ comegaSHG * 2 * pi
 
-#= neo(lambda::Array, T, cry) = ones(size(lambda)...)
-neo(lambda::Number, T, cry) = 1
- =#
 n = neo(clambda, 300, cry)
 
 k_omega = n .* comega ./ c0 .+1e5
-kx_omega = k_omega .* sin(gamma)
-kz_omega = k_omega .* cos(gamma)
+kx_omega = real.(k_omega .* sin(gamma))
+kz_omega = real.(k_omega .* cos(gamma))
 
 k_omegaSHG = neo(cLambdaSHG, 300, cry) .* comegaSHG ./ c0
 kx_omegaSHG = k_omegaSHG .* sin(gamma)
@@ -74,10 +71,6 @@ E0 = sqrt(2 * I0 / neo(lambda0, 300, cry) / e0 / c0)
 
 Axt = gauss_impulzus_omega0(E0, sigma_t, sigma_x, lambda0, gamma, ct, cx)
 
-#= display(heatmap(x, t, abs.(Axt), colormap=:jet, linewidth=0))
-display(heatmap(x, t, real.(Axt), colormap=:jet, linewidth=0)) =#
-
-
 fft_t_o = plan_fft(Axt, 1)
 fft_x_kx = plan_fft(Axt, 2)
 ifft_o_t = plan_ifft(Axt, 1)
@@ -90,13 +83,6 @@ alpha = aTHzo(comegaTHz, 300, cry)
 
 Axo = fftshift(fft_t_o * Axt, 1) ./ omegaMax .* exp.(+1im .* kx_omega .* cx)
 Akxo = fftshift(fft_x_kx * Axo / kxMax, 2)
-#= Axo2 = ifft_kx_x * ifftshift(Akxo .* kxMax, 2) .* exp.(-1im .* kx_omega .* cx)
-Axt2 = ifft_o_t * ifftshift(Axo2, 1) .* omegaMax
-display(heatmap(x, omega, abs.(Axo), colormap=:jet, linewidth=0))
-#display(plot(omega, abs.(Axo[:, Int(end / 2)])))
-display(heatmap(kx, omega, abs.(Akxo), colormap=:jet, linewidth=0))
-#display(plot(omega, abs.(Akxo[:, Int(end / 2)])))
-display(heatmap(x, t, real.(Axt2 .* exp.(1im .* omega0 .* t)), colormap=:jet, linewidth=0)) =#
 
 z = Array{Float64}(undef, floor(Int, z_end / dz))
 
@@ -108,19 +94,6 @@ A_kompozit = cat(Akxo, ATHz_kx_o, ASH, dims=3)
 
 z[1] = 0
 
-
-#= let Akxo = Akxo
-    for ii in 1:(length(z)-1)
-        Akxo, z[ii+1] = RK4M(imp_terjedes, z[ii], Akxo, dz)
-        if mod(ii, 500) == 0
-            #display(heatmap(kx, omega, abs.(Akxo), linewidth=0, xlim=[-kxMax, kxMax] / 2, colormap=:jet))
-            local Axo = ifft_kx_x * ifftshift(Akxo, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
-            local Axt = ifft_o_t * ifftshift(Axo .* omegaMax, 1)
-            display(heatmap(x, t, real.(Axt .* exp.(1im .* omega0 .* t)), linewidth=0, colormap=:jet))
-        end
-        display(ii)
-    end
-end =#
 global plotInteraction::Bool = false
 STR = Dates.format(now(), "yy-mm-dd HH-MM-SS")
 
@@ -139,7 +112,6 @@ for ii in 1:(length(z)-1)
     if ii == length(z) - 1 || mod(ii, 20) == 0 || ii == 1
 
         global Aop_kx_o = A_kompozit[:, :, 1]
-        #display(heatmap(kx, omega, abs.(Akxo), linewidth=0, xlim=[-kxMax, kxMax] / 2, colormap=:jet))
         global Axo = ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
         global Axt = ifft_o_t * ifftshift(Axo .* omegaMax, 1)
         global Aop_kx_oSH = A_kompozit[:, :, 3]

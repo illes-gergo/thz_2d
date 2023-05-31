@@ -60,7 +60,7 @@ end
 
 function thz_cascade(t, Aop, ATHz)
     Eop = @spawn ifft_kx_x * ifftshift(Aop, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
-    ETHz = @spawn ifft_kx_x * ifftshift(ATHz * kxMax .* exp.(-1im .* kz_omegaTHz .* t), 2)
+    ETHz = @spawn ifft_kx_x * ifftshift(ATHz .* kxMax .* exp.(-1im .* kz_omegaTHz .* t), 2)
     wait.([Eop, ETHz])
     temp_val1 = @spawn e0 .* khi_eff .* fast_forward_convolution(Eop.result, conj(ETHz.result))
     temp_val2 = @spawn e0 .* khi_eff .* fast_backward_convolution(Eop.result, ETHz.result)
@@ -119,11 +119,6 @@ end
 function SHG_GEN(t, Aop)
     Eop = ifft_kx_x * ifftshift(Aop, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
     temp_val = e0 .* d_eff .* fast_backward_convolution_SHG(Eop, Eop)
-    #= if plotInteraction
-        plotlyjs()
-        display(heatmap(abs.(temp_val)))
-        gr()
-    end =#
     return fftshift(fft_x_kx * (temp_val .* exp.(+1im .* kx_omegaSHG .* cx)) / kxMax .* dOmega, 2)
 end
 
@@ -132,12 +127,6 @@ function SH_OP_INTERACTION(t, Aop, ASH)
     ESH = @spawn ifft_kx_x * ifftshift(ASH, 2) * kxMax .* exp.(-1im .* kx_omegaSHG .* cx - 1im .* kz_omegaSHG .* t)
     wait.([Eop, ESH])
     conv_part = fast_forward_convolution_SHG(conj(Eop.result), ESH.result) * e0 * d_eff * dOmega
-    #= if plotInteraction
-        plotlyjs()
-        display(heatmap(abs.(conv_part)))
-        gr()
-        #readline()
-    end =#
     return fftshift(fft_x_kx * (conv_part .* exp.(+1im .* kx_omega .* cx)) ./ kxMax, 2)
 end
 
@@ -158,13 +147,13 @@ function thz_feedback_n2_SHG(t, Y)
     dASHlin = @spawn imp_terjedesSH(t, ASH)
 
     wait(dASHNL)
-    dASHNL.result .*= exp.(1im .* kz_omegaSHG .* t)
+    dASHNL.result = dASHNL.result .* exp.(1im .* kz_omegaSHG .* t)
     sum_dAop = @spawn begin
         wait.([dAopCsc, dAopn2, dAopSH])
-        return (dAopCsc.result .- dAopn2.result .- dAopSH.result) .* exp.(1im .* kz_omega .* t)
+        return (dAopCsc.result .- dAopn2.result .+ dAopSH.result) .* exp.(1im .* kz_omega .* t)
     end
 
     wait.([sum_dAop, dTHz_gen, dAop_lin, dASHlin])
     return cat(dAop_lin.result .- sum_dAop.result .* 1im .* comega .^ 2 ./ 2 ./ kz_omega ./ e0 ./ c0 .^ 2,
-        dTHz_gen.result, dASHlin.result .+ dASHNL.result .* 1im .* comegaSHG .^ 2 ./ 2 ./ kz_omegaSHG ./ e0 ./ c0 .^ 2, dims=3)
+        dTHz_gen.result, dASHlin.result .- dASHNL.result .* 1im .* comegaSHG .^ 2 ./ 2 ./ kz_omegaSHG ./ e0 ./ c0 .^ 2, dims=3)
 end
