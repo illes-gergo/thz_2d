@@ -31,6 +31,7 @@ omega = omega .- omegaMax ./ 2
 
 dkx = 2 * pi / xMax
 kx = range(0, length=Nx, step=dkx) .- Nx / 2 * dkx
+kx0 = sin(gamma) ./ lambda0 .* 2 .* pi * neo(lambda0, 300, cry)
 
 kxMax = kx[end] - kx[1]
 
@@ -54,7 +55,7 @@ cLambdaSHG = c0 ./ comegaSHG * 2 * pi
 
 n = neo(clambda, 300, cry)
 
-k_omega = n .* comega ./ c0 .+1e5
+k_omega = n .* comega ./ c0
 kx_omega = real.(k_omega .* sin(gamma))
 kz_omega = real.(k_omega .* cos(gamma))
 
@@ -83,7 +84,6 @@ alpha = aTHzo(comegaTHz, 300, cry)
 
 Axo = fftshift(fft_t_o * Axt, 1) ./ omegaMax .* exp.(+1im .* kx_omega .* cx)
 Akxo = fftshift(fft_x_kx * Axo / kxMax, 2)
-
 z = Array{Float64}(undef, floor(Int, z_end / dz))
 
 ATHz_kx_o = zeros(size(Akxo))
@@ -95,8 +95,8 @@ A_kompozit = cat(Akxo, ATHz_kx_o, ASH, dims=3)
 z[1] = 0
 
 global plotInteraction::Bool = false
-STR = Dates.format(now(), "yy-mm-dd HH-MM-SS")
-
+STR = Dates.format(now(), "probaszamolas-uj-elojelekkel")
+global Axo_prew = zeros(size(Axo))
 FID = h5open(STR * ".hdf5", "w")
 entryCounter::Int = 1;
 #STR = "elojel_minusz"
@@ -118,15 +118,17 @@ for ii in 1:(length(z)-1)
         global AxoSH = ifft_kx_x * ifftshift(Aop_kx_oSH, 2) .* kxMax .* exp.(-1im .* kx_omegaSHG .* cx - 1im .* kz_omegaSHG .* z[ii+1])
         global AxtSH = ifft_o_t * ifftshift(AxoSH .* omegaMax, 1)
 
-        p1 = heatmap(x, t, abs.(Axt .* exp.(1im .* omega0 .* ct)), linewidth=0, colormap=:jet)
-        p3 = heatmap(x, t, abs.(AxtSH .* exp.(2im .* omega0 .* ct)), linewidth=0, colormap=:jet)
+        p1 = heatmap(x, t, abs.(Axt .* exp.(1im .* omega0 .* ct) .* 1e-8), linewidth=0, colormap=:jet)
+        p3 = heatmap(x, omega, abs.(Axo - Axo_prew), colormap=:jet)
+        p4 = heatmap(x, t, abs.(AxtSH .* exp.(2im .* omega0 .* ct) .* 1e-8), linewidth=0, colormap=:jet)
         global ATHz_kx_o = A_kompozit[:, :, 2]
         global ATHz_xo = ifft_kx_x * ifftshift(ATHz_kx_o .* exp.(-1im .* k_omegaTHz .* z[ii+1]), 2) .* kxMax
         global ATHz_xt = ifft_o_t * ATHz_xo * omegaMax
         p2 = heatmap(x, t, real.(ATHz_xt) * 1e-5, linewidth=0, colormap=:jet)
         global _, max_indices = findmax(abs.(Axt))
         (scatter!([x[max_indices[2]]], [t[max_indices[1]]]))
-        display(plot(p1, p2, p3, layout=(2, 2), size=[1200, 900]))
+        display(plot(p1, p2, p3, p4, layout=(2, 2), size=[1200, 900]))
+        global Axo_prew = copy(Axo)
         #display(heatmap(x, t, abs.(ATHz_kx_o), linewidth=0, colormap=:jet))
         FID["/"*string(entryCounter)*"/Eop"] = Axt
         FID["/"*string(entryCounter)*"/Aop"] = Axo

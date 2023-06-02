@@ -1,5 +1,5 @@
 function imp_terjedes(t, Y)
-    dAdz = -1im .* kx_omega .* ckx ./ kz_omega .* Y + 1im .* ckx .^ 2 ./ 2 ./ kz_omega .* Y
+    dAdz = -1im .* kx_omega .* ckx ./ kz_omega .* Y .+ 1im .* ckx .^ 2 ./ 2 ./ kz_omega .* Y
     return dAdz
 end
 
@@ -24,7 +24,7 @@ function thz_egyszeru(t, Y)
         return temp_val
     end
     wait.([dAopdz, dTHz_gen])
-    return cat(dAopdz.result, dTHz_gen.result, dims=3)
+    return cat(dAopdz.result, dTHz_gen.result, zeros(size(Aop)), dims=3)
 end
 
 function plan_fast_conv(a, b)
@@ -82,7 +82,7 @@ function thz_feedback(t, Y)
 
     wait.([dAop_lin, dTHz_gen, dAopCsc])
 
-    return cat(dAop_lin.result .- dAopCsc.result .* 1im .* comega .^ 2 ./ 2 ./ kz_omega ./ e0 ./ c0 .^ 2, dTHz_gen.result, dims=3)
+    return cat(dAop_lin.result .- dAopCsc.result .* 1im .* comega .^ 2 ./ 2 ./ kz_omega ./ e0 ./ c0 .^ 2, dTHz_gen.result, zeros(size(Aop)), dims=3)
 end
 
 function n2calc(t, Aop)
