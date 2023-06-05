@@ -1,5 +1,5 @@
-Nx = 1500
-Nt = 500
+Nx = 2000
+Nt = 800
 
 cry = 4 # GaAs
 
@@ -17,6 +17,6 @@ dz = 1e-6
 z_end = 8e-3 + dz
 
 
-x = range(-sigma_x, sigma_x, Nx) * 8
+x = range(-sigma_x, sigma_x, Nx) * 10
 
 t = range(-sigma_t, sigma_t, Nt) * 20

@@ -95,7 +95,8 @@ A_kompozit = cat(Akxo, ATHz_kx_o, ASH, dims=3)
 z[1] = 0
 
 global plotInteraction::Bool = false
-STR = Dates.format(now(), "probaszamolas-uj-elojelekkel")
+#STR = Dates.format(now(), "YYYY-MM-DD hh-mm-ss")
+STR = "próbaszámolás.hdf5"
 global Axo_prew = zeros(size(Axo))
 FID = h5open(STR * ".hdf5", "w")
 entryCounter::Int = 1;
