@@ -1,43 +1,50 @@
-using Plots, HDF5, FFTW, DelimitedFiles, LazyGrids
+using PlotlyJS, HDF5, FFTW, DelimitedFiles, LazyGrids
 
 include("fuggvenyek.jl")
 
-gr()
 
 #FID = h5open("23-05-24 11-03-45-no4511G.hdf5", "r")
 FID = h5open("SHG/próbaszámolás.hdf5", "r")
 
 Energy0 = sum(abs.(collect(FID["1/Aop"])) .^ 2)
 
+
 EnergySH = Array{Float64}(undef, 1)
 EnergyTHz = Array{Float64}(undef, 1)
+EnergyPump = Array{Float64}(undef, 1)
+EnergyPump[1] = 0
+EnergyTHz[1] = 0
+EnergySH[1] = 0
 
 maxEntry = read(FID["/maxEntry"])
 
-#= for i in 2:maxEntry
+for i in 2:maxEntry
     push!(EnergySH, sum(abs.(read(FID["/"*string(i)*"/ASH"])) .^ 2))
     push!(EnergyTHz, sum(abs.(read(FID["/"*string(i)*"/ATHz_xo"])) .^ 2))
+    push!(EnergyPump, sum(abs.(read(FID["/"*string(i)*"/Aop"])) .^ 2))
 end
- =#
 
-z = range(start=0, stop=8e-3, length=maxEntry)
 
-#= EfficSH = EnergySH ./ Energy0 .* neo(10.6e-6 / 2, 300, 4) ./ neo(10.6e-6, 300, 4) .* 100
+z = range(start=0, stop=2e-3, length=maxEntry)
+
+EfficSH = EnergySH ./ Energy0 .* neo(10.6e-6 / 2, 300, 4) ./ neo(10.6e-6, 300, 4) .* 100
 EfficTHz = EnergyTHz ./ Energy0 .* nTHzo(0.5e12 * 2 * pi, 300, 4) ./ neo(10.6e-6, 300, 4) .* 100
- =#
+
 gamma = deg2rad(read(FID["/gamma"]))
 
-#= display(plot(z, EfficTHz))
-FILE = readdlm("SHG/efficSH.txt")
-plot(z, EfficSH)
-display(plot!(FILE[:, 1], FILE[:, 2]*100))
- =#
+efficSH1D = readdlm("efficSH1D.txt")
+
+a = plot(scatter(x=z,y=EfficTHz))
+b = plot([scatter(x=z,y=EfficSH,name="2D-s SHG hatásfok");scatter(x=efficSH1D[:,1],y=efficSH1D[:,2]*100,name="1D-s SHG hatásfok")])
+c = plot(scatter(x=z,y=EnergyPump))
+display(b)
+display(c)
 mult = 3
 
 t = read(FID["/t"])
 x = read(FID["/x"])
 
-cx, ct = ndgrid(x,t)
+cx, ct = ndgrid(x, t)
 
 Aop = read(FID["/"*string(floor(Int, (maxEntry - 1) / 8 * mult))*"/Aop"])
 Eop = read(FID["/"*string(floor(Int, (maxEntry - 1) / 8 * mult))*"/Eop"])
@@ -65,15 +72,9 @@ c0 = 3e8
 e0 = 8.854187817e-12
 close(FID)
 shift = 82
-ETHz2 = real.(circshift(ETHz,(shift,0)))'
-Eop2 = abs.(circshift(Eop,(shift,0)))'
-pltTHz = contour(t[300:500]*1e12,x[800:1201]*1e3,ETHz2[800:1201,300:500]/1e5,xlabel="Time (ps)", ylabel="x (mm)", colorbar_title="\nElectric field (kV/cm)", 
-framestyle=:box, colormap=:jet, tickfont=14, guidefont=16, size=(400,300).*2,fill=true,levels=100,lw=0,clims=(-maximum(abs.(ETHz2)),maximum(abs.(ETHz2)))./1e5, 
-right_margin = 10Plots.mm, colorbar_titlefontsize=16)
-display(pltTHz)
+ETHz2 = real.(circshift(ETHz, (shift, 0)))'
+Eop2 = abs.(circshift(Eop, (shift, 0)))'
 
-pltOp = contour(t[300:500]*1e12,x[800:1201]*1e3,Eop2[800:1201,300:500].^2/1e13/2*c0*e0*neo(10.6e-6,300,4),xlabel="Time (ps)", ylabel="x (mm)", colorbar_title="\nIntensity (GW/cm2)",
- framestyle=:box, colormap=:jet, tickfont=14, guidefont=16, size=(400,300).*2,fill=true,levels=100,lw=0,right_margin = 10Plots.mm,
- clims=(0,maximum(abs.(Eop2))).^2 ./1e13 ./2 .*c0 .*e0 .*neo(10.6e-6,300,4),colorbar_titlefontsize=16)
- display(pltOp)
+
+
 #writedlm("tyeragec-cont.txt",[ct[:];;cx[:];;(real(ETHz)')[:]])

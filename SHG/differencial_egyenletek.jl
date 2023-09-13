@@ -119,14 +119,15 @@ end
 function SHG_GEN(t, Aop)
     Eop = ifft_kx_x * ifftshift(Aop, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
     temp_val = e0 .* d_eff .* fast_backward_convolution_SHG(Eop, Eop)
-    return fftshift(fft_x_kx * (temp_val .* exp.(+1im .* kx_omegaSHG .* cx)) / kxMax .* dOmega, 2)
+    return fftshift(fft_x_kx * (temp_val .* exp.(+1im .* kx_omegaSHG .* cx)) ./ kxMax .* dOmega, 2)
 end
 
 function SH_OP_INTERACTION(t, Aop, ASH)
     Eop = @spawn ifft_kx_x * ifftshift(Aop, 2) * kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* t)
     ESH = @spawn ifft_kx_x * ifftshift(ASH, 2) * kxMax .* exp.(-1im .* kx_omegaSHG .* cx - 1im .* kz_omegaSHG .* t)
     wait.([Eop, ESH])
-    conv_part = fast_forward_convolution_SHG(conj(Eop.result), ESH.result) * e0 * d_eff * dOmega
+    conv_part = fast_forward_convolution_SHG(ESH.result, conj(Eop.result)) * e0 * d_eff * dOmega
+
     return fftshift(fft_x_kx * (conv_part .* exp.(+1im .* kx_omega .* cx)) ./ kxMax, 2)
 end
 
@@ -140,8 +141,8 @@ function thz_feedback_n2_SHG(t, Y)
         temp_val[isnan.(temp_val)] .= 0
         return temp_val
     end
-    dAopCsc = @spawn thz_cascade(t, Aop, ATHz) #.* exp.(1im .* kz_omega .* t)
-    dAopn2 = @spawn n2calc(t, Aop)
+    dAopCsc = @spawn zeros(size(Aop))#thz_cascade(t, Aop, ATHz) #.* exp.(1im .* kz_omega .* t)
+    dAopn2 = @spawn zeros(size(Aop))#n2calc(t, Aop)
     dAopSH = @spawn SH_OP_INTERACTION(t, Aop, ASH)
     dASHNL = @spawn SHG_GEN(t, Aop)
     dASHlin = @spawn imp_terjedesSH(t, ASH)

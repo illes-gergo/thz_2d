@@ -96,7 +96,7 @@ z[1] = 0
 
 global plotInteraction::Bool = false
 #STR = Dates.format(now(), "YYYY-MM-DD hh-mm-ss")
-STR = "próbaszámolás.hdf5"
+STR = "próbaszámolás"
 global Axo_prew = zeros(size(Axo))
 FID = h5open(STR * ".hdf5", "w")
 entryCounter::Int = 1;
@@ -110,7 +110,7 @@ for ii in 1:(length(z)-1)
     end
 
     #if (mod(ii, 100) == 0 || ii == 1 ) && false
-    if ii == length(z) - 1 || mod(ii, 20) == 0 || ii == 1
+    if (ii == length(z) - 1 || mod(ii, 10) == 0 || ii == 1) 
 
         global Aop_kx_o = A_kompozit[:, :, 1]
         global Axo = ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
@@ -128,7 +128,7 @@ for ii in 1:(length(z)-1)
         p2 = heatmap(x, t, real.(ATHz_xt) * 1e-5, linewidth=0, colormap=:jet)
         global _, max_indices = findmax(abs.(Axt))
         (scatter!([x[max_indices[2]]], [t[max_indices[1]]]))
-        display(plot(p1, p2, p3, p4, layout=(2, 2), size=[1200, 900]))
+       # display(plot(p1, p2, p3, p4, layout=(2, 2), size=[1200, 900]))
         global Axo_prew = copy(Axo)
         #display(heatmap(x, t, abs.(ATHz_kx_o), linewidth=0, colormap=:jet))
         FID["/"*string(entryCounter)*"/Eop"] = Axt
