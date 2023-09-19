@@ -1,19 +1,20 @@
-using LazyGrids, FFTW, FourierTools, Base.Threads,  Dates, HDF5
+using LazyGrids, FFTW, FourierTools, Base.Threads, Plots, Dates, HDF5
 
 # FFT -> /omegaMAX ; IFFT -> * omegaMAX
 
-#default(levels=100)
-#gr()
+default(levels=100)
+gr()
 include("gauss_impulzus.jl")
 include("diffegy_megoldo.jl")
 include("differencial_egyenletek.jl")
 include("fuggvenyek.jl")
 include("valtozok.jl")
+include("dims_tpf.jl")
 
-c0 = 3e8
+const c0 = 3e8
 khi_eff = 2 * deffTHz(cry)
 d_eff = deff(cry)
-e0 = 8.854187817e-12
+const e0 = 8.854187817e-12
 
 SHG_SHIFT = floor(Int, Nt / 4)
 
@@ -60,8 +61,8 @@ kx_omega = real.(k_omega .* sin(gamma))
 kz_omega = real.(k_omega .* cos(gamma))
 
 k_omegaSHG = neo(cLambdaSHG, 300, cry) .* comegaSHG ./ c0
-kx_omegaSHG = real.(k_omegaSHG .* sin(gamma))
-kz_omegaSHG = real.(k_omegaSHG .* cos(gamma))
+kx_omegaSHG = k_omegaSHG .* sin(gamma)
+kz_omegaSHG = k_omegaSHG .* cos(gamma)
 
 nTHz = nTHzo(comegaTHz, 300, cry)
 
@@ -85,7 +86,7 @@ alpha = aTHzo(comegaTHz, 300, cry)
 Axo = fftshift(fft_t_o * Axt, 1) ./ omegaMax .* exp.(+1im .* kx_omega .* cx)
 Akxo = fftshift(fft_x_kx * Axo / kxMax, 2)
 z = Array{Float64}(undef, floor(Int, z_end / dz))
-#error("stop")
+
 ATHz_kx_o = zeros(size(Akxo))
 
 ASH = copy(ATHz_kx_o)
@@ -96,7 +97,7 @@ z[1] = 0
 
 global plotInteraction::Bool = false
 #STR = Dates.format(now(), "YYYY-MM-DD hh-mm-ss")
-
+STR = "próbaszámolás.hdf5"
 global Axo_prew = zeros(size(Axo))
 FID = h5open(STR * ".hdf5", "w")
 entryCounter::Int = 1;
@@ -110,7 +111,7 @@ for ii in 1:(length(z)-1)
     end
 
     #if (mod(ii, 100) == 0 || ii == 1 ) && false
-    if (ii == length(z) - 1 || mod(ii, 20) == 0 || ii == 1) 
+    if ii == length(z) - 1 || mod(ii, 20) == 0 || ii == 1
 
         global Aop_kx_o = A_kompozit[:, :, 1]
         global Axo = ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
@@ -119,16 +120,16 @@ for ii in 1:(length(z)-1)
         global AxoSH = ifft_kx_x * ifftshift(Aop_kx_oSH, 2) .* kxMax .* exp.(-1im .* kx_omegaSHG .* cx - 1im .* kz_omegaSHG .* z[ii+1])
         global AxtSH = ifft_o_t * ifftshift(AxoSH .* omegaMax, 1)
 
-        #p1 = heatmap(x, t, abs.(Axt .* exp.(1im .* omega0 .* ct) .* 1e-8), linewidth=0, colormap=:jet)
-        #p3 = heatmap(x, omega, abs.(Axo - Axo_prew), colormap=:jet)
-        #p4 = heatmap(x, t, abs.(AxtSH .* exp.(2im .* omega0 .* ct) .* 1e-8), linewidth=0, colormap=:jet)
+        p1 = heatmap(x, t, abs.(Axt .* exp.(1im .* omega0 .* ct) .* 1e-8), linewidth=0, colormap=:jet)
+        p3 = heatmap(x, omega, abs.(Axo - Axo_prew), colormap=:jet)
+        p4 = heatmap(x, t, abs.(AxtSH .* exp.(2im .* omega0 .* ct) .* 1e-8), linewidth=0, colormap=:jet)
         global ATHz_kx_o = A_kompozit[:, :, 2]
         global ATHz_xo = ifft_kx_x * ifftshift(ATHz_kx_o .* exp.(-1im .* k_omegaTHz .* z[ii+1]), 2) .* kxMax
         global ATHz_xt = ifft_o_t * ATHz_xo * omegaMax
-        #p2 = heatmap(x, t, real.(ATHz_xt) * 1e-5, linewidth=0, colormap=:jet)
+        p2 = heatmap(x, t, real.(ATHz_xt) * 1e-5, linewidth=0, colormap=:jet)
         global _, max_indices = findmax(abs.(Axt))
-        #(scatter!([x[max_indices[2]]], [t[max_indices[1]]]))
-       # display(plot(p1, p2, p3, p4, layout=(2, 2), size=[1200, 900]))
+        (scatter!([x[max_indices[2]]], [t[max_indices[1]]]))
+        display(plot(p1, p2, p3, p4, layout=(2, 2), size=[1200, 900]))
         global Axo_prew = copy(Axo)
         #display(heatmap(x, t, abs.(ATHz_kx_o), linewidth=0, colormap=:jet))
         FID["/"*string(entryCounter)*"/Eop"] = Axt

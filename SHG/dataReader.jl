@@ -2,43 +2,61 @@ using PlotlyJS, HDF5, FFTW, DelimitedFiles, LazyGrids
 
 include("fuggvenyek.jl")
 
-
 #FID = h5open("23-05-24 11-03-45-no4511G.hdf5", "r")
-FID = h5open("SHG/próbaszámolás.hdf5", "r")
+FID = h5open("próbaszámolás-koherencia-ss.hdf5", "r")
+FID1D = h5open("DB-1ps-60GW", "r")
+
+z1D = dropdims(read(FID1D["/z"])',dims=2)
+effic1D = read(FID1D["/effic"])
 
 Energy0 = sum(abs.(collect(FID["1/Aop"])) .^ 2)
 
+maxEntry = read(FID["/maxEntry"])'
 
-EnergySH = Array{Float64}(undef, 1)
-EnergyTHz = Array{Float64}(undef, 1)
-EnergyPump = Array{Float64}(undef, 1)
-EnergyPump[1] = 0
-EnergyTHz[1] = 0
-EnergySH[1] = 0
+EnergySH = zeros(maxEntry)
+EnergyTHz = zeros(maxEntry)
+EnergySH2 = zeros(maxEntry)
+EnergySH3 = zeros(maxEntry)
+EnergyPump = zeros(maxEntry)
 
-maxEntry = read(FID["/maxEntry"])
+EnergyPump[1] = sum(abs.(read(FID["/"*string(1)*"/Aop"])) .^ 2)
 
-for i in 2:maxEntry
-    push!(EnergySH, sum(abs.(read(FID["/"*string(i)*"/ASH"])) .^ 2))
-    push!(EnergyTHz, sum(abs.(read(FID["/"*string(i)*"/ATHz_xo"])) .^ 2))
-    push!(EnergyPump, sum(abs.(read(FID["/"*string(i)*"/Aop"])) .^ 2))
+
+for i in 1:maxEntry
+	EnergySH[i] = sum(abs.(read(FID["/"*string(i)*"/ASH"]))[:,1024] .^ 2)
+	EnergyTHz[i] = sum(abs.(read(FID["/"*string(i)*"/ATHz_xo"])) .^ 2)
+	EnergyPump[i] = sum(abs.(read(FID["/"*string(i)*"/Aop"])) .^ 2)
+	
+	EnergySH2[i] = sum(abs.(read(FID["/"*string(i)*"/ASH"]))[:,1084] .^ 2)
+	EnergySH3[i] = sum(abs.(read(FID["/"*string(i)*"/ASH"]))[:,954] .^ 2)
 end
 
 
-z = range(start=0, stop=2e-3, length=maxEntry)
+z_end = read(FID["/z"])[end]
+
+z = range(start=0, stop=z_end, length=maxEntry)
+
+p1 = scatter(x=z,y=EnergySH)
+p2 = scatter(x=z,y=EnergySH2)
+p3 = scatter(x=z,y=EnergySH3)
 
 EfficSH = EnergySH ./ Energy0 .* neo(10.6e-6 / 2, 300, 4) ./ neo(10.6e-6, 300, 4) .* 100
-EfficTHz = EnergyTHz ./ Energy0 .* nTHzo(0.5e12 * 2 * pi, 300, 4) ./ neo(10.6e-6, 300, 4) .* 100
+EfficTHz = EnergyTHz ./ Energy0 .* nTHzo(1.5e12 * 2 * pi, 300, 4) ./ neo(10.6e-6, 300, 4) .* 100
+
+#EnergySH = EnergySH .* neo(10.6e-6 / 2, 300, 4) .* 100
+#EnergyTHz = EnergyTHz .* nTHzo(1.5e12 * 2 * pi, 300, 4) .* 100
+#EnergyPump = EnergyPump .* neo(10.6e-6, 300, 4) .* 100
+
 
 gamma = deg2rad(read(FID["/gamma"]))
 
-efficSH1D = readdlm("efficSH1D.txt")
+efficSH1D = dropdims(read(FID1D["/efficSH"])',dims=2)
 
 a = plot(scatter(x=z,y=EfficTHz))
-b = plot([scatter(x=z,y=EfficSH,name="2D-s SHG hatásfok");scatter(x=efficSH1D[:,1],y=efficSH1D[:,2]*100,name="1D-s SHG hatásfok")])
+b = plot([scatter(x=z,y=EfficSH,name="2D-s SHG hatásfok");scatter(x=z1D,y=efficSH1D*100,name="1D-s SHG hatásfok")])
 c = plot(scatter(x=z,y=EnergyPump))
-display(b)
-display(c)
+#display(b)
+#display(c)
 mult = 3
 
 t = read(FID["/t"])
@@ -70,10 +88,10 @@ display(plot(p11, p21, p31, p41, layout=(2, 2), size=(1200, 900)))
  =#
 c0 = 3e8
 e0 = 8.854187817e-12
-close(FID)
+#close(FID)
 shift = 82
 ETHz2 = real.(circshift(ETHz, (shift, 0)))'
-Eop2 = abs.(circshift(Eop, (shift, 0)))'
+Eop2 = abs.(circshift(Eop, (shift, 0)))';
 
 
 

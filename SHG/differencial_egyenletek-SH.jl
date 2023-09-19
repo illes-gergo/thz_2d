@@ -141,8 +141,8 @@ function thz_feedback_n2_SHG(t, Y)
         temp_val[isnan.(temp_val)] .= 0
         return temp_val
     end
-    dAopCsc = @spawn #=zeros(size(Aop))=# thz_cascade(t, Aop, ATHz)
-    dAopn2 = @spawn #=zeros(size(Aop))=# n2calc(t, Aop)
+    dAopCsc = @spawn zeros(size(Aop))# thz_cascade(t, Aop, ATHz)
+    dAopn2 = @spawn zeros(size(Aop))# n2calc(t, Aop)
     dAopSH = @spawn SH_OP_INTERACTION(t, Aop, ASH)
     dASHNL = @spawn SHG_GEN(t, Aop)
     dASHlin = @spawn imp_terjedesSH(t, ASH)
