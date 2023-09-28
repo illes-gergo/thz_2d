@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>differencial-equations</title>
+    <meta name="generator" content="wxMaxima"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script type="text/x-mathjax-config">  MathJax.Hub.Config({
+    displayAlign: "left",
+    context: "MathJax",
+    TeX: {TagSide: "left"}
+  })
+</script>
+    <script id="MathJax-script" type="application/javascript" async="true" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">  // A comment that hinders wxWidgets from optimizing this tag too much.
+</script>
+    <link rel="stylesheet" type="text/css" href="differencial-equations_htmlimg/differencial-equations.css"/>
+  </head>
+  <body>
+    <!-- ****************************************************** -->
+    <!-- *        Created with wxMaxima version 23.08.0       * -->
+    <!-- ****************************************************** -->
+    <noscript>
+      <div class="error message">
+        <p>Please enable JavaScript in order to get a 2d display of the equations embedded in this web page.</p>
+      </div>
+    </noscript>
+    <p hidden="hidden">\(      \DeclareMathOperator{\abs}{abs}
+      \newcommand{\ensuremath}[1]{\mbox{$#1$}}
+\)</p>
+    <!-- Text cell -->
+    <div class="comment">Anyagon való áthaladást tartalmazó differenciál egyenlet megoldására vonatkozó kísérlet
+</div>
+    <!-- Code cell -->
+    <table>
+      <tr>
+        <td>
+          <span class="prompt">(%i1)	
+  </span>
+        </td>
+        <td>
+          <span class="input">
+            <span class="code_function">f</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">:</span>
+            <span class="code_operator">=</span>
+            <span class="code_function">A</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">·</span>
+            <span class="code_function">exp</span>
+            <span class="code_operator">(</span>
+            <span class="code_operator">−</span>
+            <span class="code_variable">%i</span>
+            <span class="code_operator">·</span>
+            <span class="code_function">integrate</span>
+            <span class="code_operator">(</span>
+            <span class="code_function">kz</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">z</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">−</span>
+            <span class="code_variable">%i</span>
+            <span class="code_operator">·</span>
+            <span class="code_function">integrate</span>
+            <span class="code_operator">(</span>
+            <span class="code_function">kx</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">;</span>
+            <span class="code_comment">/* Kezdeti egyenlet*/</span>
+          </span>
+        </td>
+      </tr>
+    </table>
+    <p>\[\]\[\tag{%o1} \operatorname{f}\left( z\operatorname{,}x\operatorname{,}omega\right) \operatorname{:=}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \operatorname{exp}\left( \operatorname{-}\% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}\right) \]
+</p>
+    <!-- Code cell -->
+    <table>
+      <tr>
+        <td>
+          <span class="prompt">(%i4)	
+  </span>
+        </td>
+        <td>
+          <span class="input">
+            <span class="code_function">expr1</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">:</span>
+            <span class="code_operator">=</span>
+            <span class="code_function">diff</span>
+            <span class="code_operator">(</span>
+            <span class="code_function">f</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_number">2</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">+</span>
+            <span class="code_function">diff</span>
+            <span class="code_operator">(</span>
+            <span class="code_function">f</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_number">2</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">+</span>
+            <span class="code_function">k</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">^</span>
+            <span class="code_number">2</span>
+            <span class="code_operator">·</span>
+            <span class="code_function">f</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">$</span>
+            <span class="code_endofline">
+              <br/>
+            </span>
+            <span class="code_function">expr2</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">:</span>
+            <span class="code_operator">=</span>
+            <span class="code_function">expand</span>
+            <span class="code_operator">(</span>
+            <span class="code_function">expr1</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">$</span>
+            <span class="code_endofline">
+              <br/>
+            </span>
+            <span class="code_function">expr2</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">;</span>
+            <span class="code_comment">/* Alak egyszerűsítés nélkül */</span>
+          </span>
+        </td>
+      </tr>
+    </table>
+    <p>\[\]\[\tag{%o4} \operatorname{-}\left( \% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \int {\left. \frac{{{d}^{2}}}{d {{x}^{2}}} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} {{\int {\left. \frac{d}{d x} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}}^{2}}\operatorname{-}2 \% i {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \left( \frac{d}{d x} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right)  \int {\left. \frac{d}{d x} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\operatorname{-}2 \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \int {\left. \frac{d}{d x} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\operatorname{-}\% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \int {\left. \frac{{{d}^{2}}}{d {{z}^{2}}} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}\operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} {{\int {\left. \frac{d}{d z} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}^{2}}\operatorname{-}2 \% i {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \left( \frac{d}{d z} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right)  \int {\left. \frac{d}{d z} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}\operatorname{-}2 \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \int {\left. \frac{d}{d z} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}\operatorname{-}\% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \left( \frac{d}{d z} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) \right) \operatorname{-}\% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \left( \frac{d}{d x} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) \right) \operatorname{+}{{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \left( \frac{{{d}^{2}}}{d {{z}^{2}}} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right) \operatorname{-}2 \% i \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \left( \frac{d}{d z} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right) \operatorname{+}{{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \left( \frac{{{d}^{2}}}{d {{x}^{2}}} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right) \operatorname{-}2 \% i \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \left( \frac{d}{d x} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right) \operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) }^{2}} {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}}\operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) }^{2}} {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}}\operatorname{+}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\operatorname{k}\left( z\operatorname{,}x\operatorname{,}omega\right) }^{2}} {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}}\]
+</p>
+    <!-- Code cell -->
+    <table>
+      <tr>
+        <td>
+          <span class="prompt">(%i7)	
+  </span>
+        </td>
+        <td>
+          <span class="input">
+            <span class="code_function">expr3</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">:</span>
+            <span class="code_operator">=</span>
+            <span class="code_function">subst</span>
+            <span class="code_operator">(</span>
+            <span class="code_number">0</span>
+            <span class="code_endofline">,</span>
+            <span class="code_function">diff</span>
+            <span class="code_operator">(</span>
+            <span class="code_function">A</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_number">2</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">,</span>
+            <span class="code_function">expr2</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">$</span>
+            <span class="code_endofline">
+              <br/>
+            </span>
+            <span class="code_function">expr4</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">:</span>
+            <span class="code_operator">=</span>
+            <span class="code_function">expand</span>
+            <span class="code_operator">(</span>
+            <span class="code_function">expr3</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">$</span>
+            <span class="code_endofline">
+              <br/>
+            </span>
+            <span class="code_function">expr4</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">;</span>
+            <span class="code_comment">/* d^2 A /dz^2 = 0*/</span>
+          </span>
+        </td>
+      </tr>
+    </table>
+    <p>\[\]\[\tag{%o7} \operatorname{-}\left( \% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \int {\left. \frac{{{d}^{2}}}{d {{x}^{2}}} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} {{\int {\left. \frac{d}{d x} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}}^{2}}\operatorname{-}2 \% i {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \left( \frac{d}{d x} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right)  \int {\left. \frac{d}{d x} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\operatorname{-}2 \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \int {\left. \frac{d}{d x} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\operatorname{-}\% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \int {\left. \frac{{{d}^{2}}}{d {{z}^{2}}} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}\operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} {{\int {\left. \frac{d}{d z} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}^{2}}\operatorname{-}2 \% i {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \left( \frac{d}{d z} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right)  \int {\left. \frac{d}{d z} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}\operatorname{-}2 \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \int {\left. \frac{d}{d z} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}\operatorname{-}\% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \left( \frac{d}{d z} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) \right) \operatorname{-}\% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \left( \frac{d}{d x} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) \right) \operatorname{-}2 \% i \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \left( \frac{d}{d z} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right) \operatorname{+}{{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \left( \frac{{{d}^{2}}}{d {{x}^{2}}} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right) \operatorname{-}2 \% i \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}} \left( \frac{d}{d x} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right) \operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) }^{2}} {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}}\operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) }^{2}} {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}}\operatorname{+}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\operatorname{k}\left( z\operatorname{,}x\operatorname{,}omega\right) }^{2}} {{\% e}^{\operatorname{-}\left( \% i \int {\left. \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\% i \int {\left. \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}}\]
+</p>
+    <!-- Code cell -->
+    <table>
+      <tr>
+        <td>
+          <span class="prompt">(%i10)	
+  </span>
+        </td>
+        <td>
+          <span class="input">
+            <span class="code_function">expr5</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">:</span>
+            <span class="code_operator">=</span>
+            <span class="code_function">subst</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">zcumphase</span>
+            <span class="code_endofline">,</span>
+            <span class="code_function">integrate</span>
+            <span class="code_operator">(</span>
+            <span class="code_function">kz</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">z</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">,</span>
+            <span class="code_function">expr4</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">$</span>
+            <span class="code_endofline">
+              <br/>
+            </span>
+            <span class="code_function">expr6</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">:</span>
+            <span class="code_operator">=</span>
+            <span class="code_function">subst</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">xcumphase</span>
+            <span class="code_endofline">,</span>
+            <span class="code_function">integrate</span>
+            <span class="code_operator">(</span>
+            <span class="code_function">kx</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">,</span>
+            <span class="code_function">expr5</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">$</span>
+            <span class="code_endofline">
+              <br/>
+            </span>
+            <span class="code_function">expand</span>
+            <span class="code_operator">(</span>
+            <span class="code_function">expr6</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">;</span>
+            <span class="code_comment">/* Feltételezzük, hogy az integrálok kumulatív szummaként felírhatok */</span>
+          </span>
+        </td>
+      </tr>
+    </table>
+    <p>\[\]\[\tag{%o10} \operatorname{-}\left( \% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \int {\left. \frac{{{d}^{2}}}{d {{x}^{2}}} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.} {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\right) \operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\int {\left. \frac{d}{d x} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}}^{2}} {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\operatorname{-}2 \% i \left( \frac{d}{d x} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right)  \int {\left. \frac{d}{d x} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.} {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\operatorname{-}2 \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right)  \int {\left. \frac{d}{d x} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.} {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\operatorname{-}\% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \int {\left. \frac{{{d}^{2}}}{d {{z}^{2}}} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.} {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\int {\left. \frac{d}{d z} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}^{2}} {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\operatorname{-}2 \% i \left( \frac{d}{d z} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right)  \int {\left. \frac{d}{d z} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.} {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\operatorname{-}2 \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right)  \int {\left. \frac{d}{d z} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.} {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\operatorname{-}\% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \left( \frac{d}{d z} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) \right)  {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\operatorname{-}\% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \left( \frac{d}{d x} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) \right)  {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\operatorname{-}2 \% i \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right)  \left( \frac{d}{d z} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right)  {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\operatorname{+}\left( \frac{{{d}^{2}}}{d {{x}^{2}}} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right)  {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\operatorname{-}2 \% i \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right)  \left( \frac{d}{d x} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right)  {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) }^{2}} {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) }^{2}} {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\operatorname{+}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\operatorname{k}\left( z\operatorname{,}x\operatorname{,}omega\right) }^{2}} {{\% e}^{\operatorname{-}\left( \% i \ensuremath{\mathrm{zcumphase}}\right) \operatorname{-}\% i \ensuremath{\mathrm{xcumphase}}}}\]
+</p>
+    <!-- Code cell -->
+    <table>
+      <tr>
+        <td>
+          <span class="prompt">(%i12)	
+  </span>
+        </td>
+        <td>
+          <span class="input">
+            <span class="code_function">expr7</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">:</span>
+            <span class="code_operator">=</span>
+            <span class="code_function">expr6</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">/</span>
+            <span class="code_variable">%e</span>
+            <span class="code_operator">^</span>
+            <span class="code_operator">(</span>
+            <span class="code_operator">−</span>
+            <span class="code_variable">%i</span>
+            <span class="code_operator">·</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">zcumphase</span>
+            <span class="code_operator">+</span>
+            <span class="code_variable">xcumphase</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">$</span>
+            <span class="code_endofline">
+              <br/>
+            </span>
+            <span class="code_function">expand</span>
+            <span class="code_operator">(</span>
+            <span class="code_function">expr7</span>
+            <span class="code_operator">(</span>
+            <span class="code_variable">z</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">x</span>
+            <span class="code_endofline">,</span>
+            <span class="code_variable">omega</span>
+            <span class="code_operator">)</span>
+            <span class="code_operator">)</span>
+            <span class="code_endofline">;</span>
+            <span class="code_comment">/* e^fázis-sal való osztás*/</span>
+          </span>
+        </td>
+      </tr>
+    </table>
+    <p>\[\]\[\tag{%o12} \operatorname{-}\left( \% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \int {\left. \frac{{{d}^{2}}}{d {{x}^{2}}} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\right) \operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\int {\left. \frac{d}{d x} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}}^{2}}\operatorname{-}2 \% i \left( \frac{d}{d x} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right)  \int {\left. \frac{d}{d x} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\operatorname{-}2 \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right)  \int {\left. \frac{d}{d x} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) dz\right.}\operatorname{-}\% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \int {\left. \frac{{{d}^{2}}}{d {{z}^{2}}} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}\operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\int {\left. \frac{d}{d z} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}}^{2}}\operatorname{-}2 \% i \left( \frac{d}{d z} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right)  \int {\left. \frac{d}{d z} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}\operatorname{-}2 \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right)  \int {\left. \frac{d}{d z} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) dx\right.}\operatorname{-}\% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \left( \frac{d}{d z} \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) \right) \operatorname{-}\% i \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  \left( \frac{d}{d x} \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) \right) \operatorname{-}2 \% i \operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right)  \left( \frac{d}{d z} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right) \operatorname{+}\frac{{{d}^{2}}}{d {{x}^{2}}} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \operatorname{-}2 \% i \operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right)  \left( \frac{d}{d x} \operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right) \right) \operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\operatorname{kz}\left( z\operatorname{,}x\operatorname{,}omega\right) }^{2}}\operatorname{-}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\operatorname{kx}\left( z\operatorname{,}x\operatorname{,}omega\right) }^{2}}\operatorname{+}\operatorname{A}\left( z\operatorname{,}x\operatorname{,}omega\right)  {{\operatorname{k}\left( z\operatorname{,}x\operatorname{,}omega\right) }^{2}}\]
+</p>
+    <hr/>
+    <p>
+      <small> Created with 
+        <a href="https://wxMaxima-developers.github.io/wxmaxima/">wxMaxima</a>.</small>
+    </p>
+    <small> The source of this Maxima session can be downloaded 
+      <a href="differencial-equations_htmlimg/differencial-equations.wxmx">here</a>.</small>
+  </body>
+</html>
