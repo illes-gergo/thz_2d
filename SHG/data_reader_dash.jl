@@ -47,19 +47,19 @@ app.layout = html_div((
                 )
                 ), width=6),
             dbc_col((
-                dcc_input(
-                id="crystal-input",
-                min=1,
-                max=401,
-                step=1,
-                type="number",
-                debounce=true,
-                value=101
-            )
-            ),width=2),
+                    dcc_input(
+                    id="crystal-input",
+                    min=1,
+                    max=401,
+                    step=1,
+                    type="number",
+                    debounce=true,
+                    value=101
+                )
+                ), width=2),
             dbc_col((
-                html_button("2D ábrák frissítése", id="crystalupdate")
-            ),width=2))),
+                    html_button("2D ábrák frissítése", id="crystalupdate")
+                ), width=2))),
         html_h1("Összefoglaló értékek"),
         dbc_row((
             html_div(
@@ -161,7 +161,7 @@ callback!(app, Output("thz_o", "figure"), Output("thz_t", "figure"), Output("pum
         z_raw = read(FID["/$(cslider)/ATHz_xo"])
         _, I = findmax(abs.(z_raw))
         z_shifted = circshift(z_raw, [0, 1024 - I[2]])
-        p1.data[1][:x] = oo[1:floor(Int, end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]
+        p1.data[1][:x] = oo[1:floor(Int, end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)] ./ 2 ./ pi
         p1.data[1][:y] = xx[1:floor(Int, end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]
         p1.data[1][:z] = abs.(z_shifted[1:floor(Int, end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)])
     end
@@ -169,7 +169,7 @@ callback!(app, Output("thz_o", "figure"), Output("thz_t", "figure"), Output("pum
     t2 = @spawn begin
         z_raw = read(FID["/$(cslider)/ATHz_xt"])
         _, I = findmax(abs.(z_raw))
-        z_shifted = circshift(z_raw, [512, 1024] .- [I[1], I[2]])
+        z_shifted = circshift(z_raw, [floor(Int, size(z_raw, 1) / 2), floor(Int, size(z_raw, 2) / 2)] .- [I[1], I[2]])
         z_processed = real.(z_shifted[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)])
         p2.data[1][:x] = tt[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]
         p2.data[1][:y] = xx[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]
@@ -180,7 +180,7 @@ callback!(app, Output("thz_o", "figure"), Output("thz_t", "figure"), Output("pum
         z_raw = read(FID["/$(cslider)/Aop"])
         _, I = findmax(abs.(z_raw))
         z_shifted = circshift(z_raw, [0, 1024 - I[2]])
-        p3.data[1][:x] = oo[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]
+        p3.data[1][:x] = oo[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)] ./ 2 ./ pi
         p3.data[1][:y] = xx[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]
         p3.data[1][:z] = abs.(z_shifted[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)])
     end
@@ -188,7 +188,7 @@ callback!(app, Output("thz_o", "figure"), Output("thz_t", "figure"), Output("pum
     t4 = @spawn begin
         z_raw = read(FID["/$(cslider)/Eop"])
         _, I = findmax(abs.(z_raw))
-        z_shifted = circshift(z_raw, [512, 1024] .- [I[1], I[2]])
+        z_shifted = circshift(z_raw, [floor(Int, size(z_raw, 1) / 2), floor(Int, size(z_raw, 2) / 2)] .- [I[1], I[2]])
         z_processed = abs.(z_shifted[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]) .^ 2
         p4.data[1][:x] = tt[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]
         p4.data[1][:y] = xx[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]
@@ -208,17 +208,19 @@ callback!(app, Output("thz_o_single", "figure"), Output("thz_t_single", "figure"
     # oo,_ = ndgrid(o_val.-o_val[1],x_val)
     #println(keys(FID))
 
-    p1s.data[1][:x] = o_val
+    p1s.data[1][:x] = (o_val .- o_val[1]) ./ 2 ./ pi
     p1s.data[1][:y] = abs.(read(FID["/$(cslider)/ATHz_xo"])[:, x_ind])
 
     p2s.data[1][:x] = t_val
-    p2s.data[1][:y] = real.(read(FID["/$(cslider)/ATHz_xt"])[:, x_ind])
+    _, I = findmax(abs.(read(FID["/$(cslider)/ATHz_xt"])))
+    p2s.data[1][:y] = circshift(real.(read(FID["/$(cslider)/ATHz_xt"])[:, x_ind]), 512 - I[1])
 
-    p3s.data[1][:x] = o_val
+    p3s.data[1][:x] = o_val ./ 2 ./ pi
     p3s.data[1][:y] = abs.(read(FID["/$(cslider)/Aop"])[:, x_ind])
 
     p4s.data[1][:x] = t_val
-    p4s.data[1][:y] = abs.(read(FID["/$(cslider)/Eop"])[:, x_ind]) .^ 2
+    _, I = findmax(abs.(read(FID["/$(cslider)/Eop"])[:, x_ind]))
+    p4s.data[1][:y] = circshift(abs.(read(FID["/$(cslider)/Eop"])[:, x_ind]) .^ 2, 512 - I[1])
 
     return (p1s, p2s, p3s, p4s)
 end

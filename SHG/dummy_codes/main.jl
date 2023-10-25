@@ -70,7 +70,7 @@ kz_omegaTHz = real.(sqrt.(Complex.(k_omegaTHz .^ 2 - ckx .^ 2)))
 
 E0 = sqrt(2 * I0 / neo(lambda0, 300, cry) / e0 / c0)
 
-Axt = gauss_impulzus_omega0(E0, sigma_t, sigma_x, lambda0, gamma, ct, cx)
+Axt = gauss_impulzus_omega0(E0, sigma_t/4, sigma_x, lambda0, gamma, ct, cx)
 
 fft_t_o = plan_fft(Axt, 1)
 fft_x_kx = plan_fft(Axt, 2)
@@ -98,10 +98,12 @@ global plotInteraction::Bool = false
 #STR = Dates.format(now(), "YYYY-MM-DD hh-mm-ss")
 
 global Axo_prew = zeros(size(Axo))
+display(plot(heatmap(z=abs.(imp_terjedes(0,Akxo)))))
+error()
 FID = h5open(STR * ".hdf5", "w")
 entryCounter::Int = 1;
 #STR = "elojel_minusz"
-error()
+
 for ii in 1:(length(z)-1)
     global A_kompozit, z[ii+1] = RK4M(thz_feedback_n2_SHG, z[ii], A_kompozit, dz)
     if mod(ii, 11) == 0
