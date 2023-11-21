@@ -1,4 +1,5 @@
 using HDF5, Dash, PlotlyJS, DelimitedFiles, DashBootstrapComponents, LazyGrids, Base.Threads
+include("fuggvenyek.jl")
 include("data_reader_dash_funcs.jl")
 
 calcdir = "/home/illesg/cst/2d-calculations/"
@@ -21,6 +22,9 @@ p1e = Plot(scatter(x=1:10, y=rand(10)))
 p2e = Plot(scatter(x=1:10, y=rand(10)))
 
 tupofcalcs = createtup(calcdir)
+
+e0 = 8.854e-12
+c0 = 3e8
 
 app.layout = html_div((
         html_h1("Vezérlés"),
@@ -157,44 +161,44 @@ callback!(app, Output("thz_o", "figure"), Output("thz_t", "figure"), Output("pum
     tt, xx = ndgrid(t_val, x_val)
     oo, _ = ndgrid(o_val .- o_val[1], x_val)
     #println(keys(FID))
-    t1 = @spawn begin
+    t1 = begin
         z_raw = read(FID["/$(cslider)/ATHz_xo"])
         _, I = findmax(abs.(z_raw))
         z_shifted = circshift(z_raw, [0, 1024 - I[2]])
-        p1.data[1][:x] = oo[1:floor(Int, end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)] ./ 2 ./ pi
-        p1.data[1][:y] = xx[1:floor(Int, end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]
-        p1.data[1][:z] = abs.(z_shifted[1:floor(Int, end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)])
+        p1.data[1][:x] = oo[1:floor(Int, end / 8), floor(Int, 2 * end / 8):floor(Int, 6 * end / 8)] ./ 2 ./ pi
+        p1.data[1][:y] = xx[1:floor(Int, end / 8), floor(Int, 2 * end / 8):floor(Int, 6 * end / 8)]
+        p1.data[1][:z] = abs.(z_shifted[1:floor(Int, end / 8), floor(Int, 2 * end / 8):floor(Int, 6 * end / 8)])
     end
 
-    t2 = @spawn begin
+    t2 = begin
         z_raw = read(FID["/$(cslider)/ATHz_xt"])
         _, I = findmax(abs.(z_raw))
         z_shifted = circshift(z_raw, [floor(Int, size(z_raw, 1) / 2), floor(Int, size(z_raw, 2) / 2)] .- [I[1], I[2]])
-        z_processed = real.(z_shifted[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)])
-        p2.data[1][:x] = tt[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]
-        p2.data[1][:y] = xx[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]
-        p2.data[1][:z] = real.(z_processed)
+        z_processed = real.(z_shifted[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 2 * end / 8):floor(Int, 6 * end / 8)])
+        p2.data[1][:x] = tt[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 2 * end / 8):floor(Int, 6 * end / 8)]
+        p2.data[1][:y] = xx[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 2 * end / 8):floor(Int, 6 * end / 8)]
+        p2.data[1][:z] = real.(z_processed) * 2 * nTHzo(1.5e12 * 2 * pi, 300, 4) / (1 + nTHzo(1.5e12 * 2 * pi, 300, 4)) / 1e5
     end
 
-    t3 = @spawn begin
+    t3 = begin
         z_raw = read(FID["/$(cslider)/Aop"])
         _, I = findmax(abs.(z_raw))
         z_shifted = circshift(z_raw, [0, 1024 - I[2]])
-        p3.data[1][:x] = oo[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)] ./ 2 ./ pi
-        p3.data[1][:y] = xx[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]
-        p3.data[1][:z] = abs.(z_shifted[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)])
+        p3.data[1][:x] = oo[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 2 * end / 8):floor(Int, 6 * end / 8)] ./ 2 ./ pi
+        p3.data[1][:y] = xx[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 2 * end / 8):floor(Int, 6 * end / 8)]
+        p3.data[1][:z] = abs.(z_shifted[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 2 * end / 8):floor(Int, 6 * end / 8)])
     end
 
-    t4 = @spawn begin
+    t4 = begin
         z_raw = read(FID["/$(cslider)/Eop"])
         _, I = findmax(abs.(z_raw))
         z_shifted = circshift(z_raw, [floor(Int, size(z_raw, 1) / 2), floor(Int, size(z_raw, 2) / 2)] .- [I[1], I[2]])
-        z_processed = abs.(z_shifted[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]) .^ 2
-        p4.data[1][:x] = tt[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]
-        p4.data[1][:y] = xx[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 3 * end / 8):floor(Int, 5 * end / 8)]
-        p4.data[1][:z] = z_processed
+        z_processed = abs.(z_shifted[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 2 * end / 8):floor(Int, 6 * end / 8)]) .^ 2
+        p4.data[1][:x] = tt[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 2 * end / 8):floor(Int, 6 * end / 8)]
+        p4.data[1][:y] = xx[floor(Int, 3 * end / 8):floor(Int, 5 * end / 8), floor(Int, 2 * end / 8):floor(Int, 6 * end / 8)]
+        p4.data[1][:z] = z_processed * e0 * c0 / 2 * neo(10.6e-6,300,4) / 1e13
     end
-    wait.([t1, t2, t3, t4])
+    
     return (p1, p2, p3, p4)
 end
 
@@ -208,32 +212,37 @@ callback!(app, Output("thz_o_single", "figure"), Output("thz_t_single", "figure"
     # oo,_ = ndgrid(o_val.-o_val[1],x_val)
     #println(keys(FID))
 
+
     p1s.data[1][:x] = (o_val .- o_val[1]) ./ 2 ./ pi
     p1s.data[1][:y] = abs.(read(FID["/$(cslider)/ATHz_xo"])[:, x_ind])
 
     p2s.data[1][:x] = t_val
     _, I = findmax(abs.(read(FID["/$(cslider)/ATHz_xt"])))
-    p2s.data[1][:y] = circshift(real.(read(FID["/$(cslider)/ATHz_xt"])[:, x_ind]), 512 - I[1])
+    p2s.data[1][:y] = circshift(real.(read(FID["/$(cslider)/ATHz_xt"])[:, x_ind]), 512 - I[1]) * 2 * nTHzo(1.5e12 * 2 * pi, 300, 4) / (1 + nTHzo(1.5e12 * 2 * pi, 300, 4)) / 1e5
 
     p3s.data[1][:x] = o_val ./ 2 ./ pi
     p3s.data[1][:y] = abs.(read(FID["/$(cslider)/Aop"])[:, x_ind])
 
     p4s.data[1][:x] = t_val
     _, I = findmax(abs.(read(FID["/$(cslider)/Eop"])[:, x_ind]))
-    p4s.data[1][:y] = circshift(abs.(read(FID["/$(cslider)/Eop"])[:, x_ind]) .^ 2, 512 - I[1])
+    p4s.data[1][:y] = circshift(abs.(read(FID["/$(cslider)/Eop"])[:, x_ind]) .^ 2, 512 - I[1]) * e0 * c0 / 2 * neo(10.6e-6,300,4) / 1e13
 
     return (p1s, p2s, p3s, p4s)
 end
 
-callback!(app, Output("effic-graph", "figure"), Input("calcselector", "value")) do calc
+callback!(app, Output("effic-graph", "figure"), Output("efficSH-graph", "figure"), Input("calcselector", "value")) do calc
     FID = h5open(calc, "r")
-    z_val = read(FID["/z"])
+    z_val = 1:401 #read(FID["/z"])[1:20:end]
     En0 = sum(read(FID["/En"])[1, :])
     EnTHz = sum(read(FID["/EnTHz"]), dims=2)
+    EnSH = sum(read(FID["/EnSH"]), dims=2)
     effic = EnTHz ./ En0
+    efficSH = EnSH ./ En0
     p1e.data[1][:x] = z_val
-    p1e.data[1][:y] = effic
-    return (p1e)
+    p1e.data[1][:y] = effic * 4 * nTHzo(1.5e12 * 2 * pi, 300, 4) / (1 + nTHzo(1.5e12 * 2 * pi, 300, 4)) .^ 2
+    p2e.data[1][:x] = z_val
+    p2e.data[1][:y] = efficSH
+    return (p1e, p2e)
 end
 
 

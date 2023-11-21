@@ -1,4 +1,4 @@
-using LazyGrids, FFTW, FourierTools, Base.Threads,  Dates, HDF5
+using LazyGrids, FFTW, FourierTools, Base.Threads, Dates, HDF5, PlotlyJS
 
 # FFT -> /omegaMAX ; IFFT -> * omegaMAX
 
@@ -98,7 +98,7 @@ global plotInteraction::Bool = false
 #STR = Dates.format(now(), "YYYY-MM-DD hh-mm-ss")
 
 global Axo_prew = zeros(size(Axo))
-display(plot(heatmap(z=abs.(imp_terjedes(0,Akxo)))))
+display(plot(heatmap(z=abs.(thz_generation(0,Akxo)))))
 error()
 FID = h5open(STR * ".hdf5", "w")
 entryCounter::Int = 1;

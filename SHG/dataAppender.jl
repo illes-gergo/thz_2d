@@ -5,14 +5,19 @@ calcdir = "/home/illesg/cst/2d-calculations/"
 
 
 #readdir(calcdir)
-dirs = ["100gw2psfull8mm.hdf5",
-    "20gw2psfull8mm.hdf5",
-    "40gw2psfull8mm.hdf5",
-    "60gw2psfull8mm.hdf5",
-    "80gw2psfull8mm.hdf5"]
+dirs = ["100gw1psfull8mm.hdf5",
+#    "20gw1psfull8mm.hdf5",
+    "40gw1psfull8mm.hdf5",
+    "60gw1psfull8mm.hdf5",
+    "80gw1psfull8mm.hdf5"]
     #dirs = ["100gw1psfull8mmHD.hdf5"]
 for dir in dirs
+    
     FID = h5open(calcdir * dir,"r+")
+
+    if haskey(FID,"En") delete_object(FID,"En") end
+    if haskey(FID,"EnTHz") delete_object(FID,"EnTHz") end
+    if haskey(FID,"EnSH") delete_object(FID,"EnSH") end
 
     En = zeros(401,2048)
     EnTHz = zeros(401,2048)
@@ -26,8 +31,6 @@ for dir in dirs
     end
     FID["En"] = En
     FID["EnTHz"] = EnTHz
-    FID["EnSH"] = zeros(size(En))
-    FID["effic"] = EnTHz./En0
-    FID["efficSH"] = EnTHz./En0
+    FID["EnSH"] = EnSH
     println("DB $(dir)")
 end
