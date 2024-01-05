@@ -7,3 +7,6 @@ calc*
 *.jld2
 *.hdf5
 *.zip
+*.pdf
+*.png
+*.svg
