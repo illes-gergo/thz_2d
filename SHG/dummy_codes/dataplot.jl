@@ -79,7 +79,7 @@ z = 1:401
 
 IopM = I_opMax(z)
 
-data = scatter(x=z*20e-3,y=IopM)
+data = scatter(x=z*20e-3,y=IopM,line=attr(shape="spline"))
 p = plot(data,merge(lout_general,lout_imax))
 
 #display(p)

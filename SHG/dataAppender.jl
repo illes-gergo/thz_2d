@@ -5,12 +5,11 @@ calcdir = "/home/illesg/cst/2d-calculations/"
 
 
 #readdir(calcdir)
-dirs = ["100gw1psfull8mm.hdf5",
-#    "20gw1psfull8mm.hdf5",
-    "40gw1psfull8mm.hdf5",
-    "60gw1psfull8mm.hdf5",
-    "80gw1psfull8mm.hdf5"]
-    #dirs = ["100gw1psfull8mmHD.hdf5"]
+dirs = ["20gw2psfull8mm-narrow-alt",
+	"40gw2psfull8mm-narrow-alt",
+	"60gw2psfull8mm-narrow-alt",
+	"80gw2psfull8mm-narrow-alt",
+	"100gw2psfull8mm-narrow-alt"].*".hdf5"
 for dir in dirs
     
     FID = h5open(calcdir * dir,"r+")

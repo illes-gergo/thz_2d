@@ -168,6 +168,7 @@ callback!(app, Output("thz_o", "figure"), Output("thz_t", "figure"), Output("pum
         p1.data[1][:x] = oo[1:floor(Int, end / 8), floor(Int, 2 * end / 8):floor(Int, 6 * end / 8)] ./ 2 ./ pi
         p1.data[1][:y] = xx[1:floor(Int, end / 8), floor(Int, 2 * end / 8):floor(Int, 6 * end / 8)]
         p1.data[1][:z] = abs.(z_shifted[1:floor(Int, end / 8), floor(Int, 2 * end / 8):floor(Int, 6 * end / 8)])
+
     end
 
     t2 = begin
@@ -246,12 +247,12 @@ callback!(app, Output("effic-graph", "figure"), Output("efficSH-graph", "figure"
 end
 
 
-callback!(app, Output("crystalslider", "value"), Input("crystal-input", "value")) do clength
-    return clength
+callback!(app, [Output("crystalslider", "value")], [Input("crystal-input", "value")], prevent_initial_call = true) do clength
+    return [clength]
 end
 
-callback!(app, Output("crystal-input", "value"), Input("crystalslider", "value")) do clength
-    return clength
+callback!(app, [Output("crystal-input", "value")], [Input("crystalslider", "value")], prevent_initial_call = true) do clength
+    return [clength]
 end
 
 run_server(app, "0.0.0.0", 12345, debug=false)
