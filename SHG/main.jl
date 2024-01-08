@@ -101,7 +101,7 @@ global Axo_prew = zeros(size(Axo))
 FID = h5open(STR * ".hdf5", "w")
 entryCounter::Int = 1;
 #STR = "elojel_minusz"
-error()
+#error()
 for ii in 1:(length(z)-1)
     global A_kompozit, z[ii+1] = RK4M(thz_feedback_n2_SHG, z[ii], A_kompozit, dz)
     if mod(ii, 11) == 0
