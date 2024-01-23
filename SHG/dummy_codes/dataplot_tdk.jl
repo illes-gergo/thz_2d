@@ -12,13 +12,13 @@ calcdir1D = "/home/illesg/cst/calculations/1.0-ps"
 
 
 config = PlotConfig(
-    toImageButtonOptions=attr(
-        format="svg", # one of png, svg, jpeg, webp
-        filename="custom_image",
-        height=480,
-        width=640,
-        scale=1 # Multiply title/legend/axis/canvas sizes by this factor
-    ).fields
+  toImageButtonOptions=attr(
+    format="svg", # one of png, svg, jpeg, webp
+    filename="custom_image",
+    height=480,
+    width=640,
+    scale=1 # Multiply title/legend/axis/canvas sizes by this factor
+  ).fields
 )
 
 ################ Eltérések ábrázolása ################
@@ -81,21 +81,22 @@ p = Plot([s1,s2,s3,s4,s5],merge(lout_general,lout_effic))
 t = read(FID["/t"]) * 1e12
 x = read(FID["/x"]) * 1e3
 
-ETHz = (read(FID["201/ATHz_xt"])) * 2 * nTHzo(1.5e12 * 2 * pi, 300, 4) / (1 + nTHzo(1.5e12 * 2 * pi, 300, 4)) / 1e5
+ETHz = (read(FID["130/ATHz_xt"])) * 2 * nTHzo(1.5e12 * 2 * pi, 300, 4) / (1 + nTHzo(1.5e12 * 2 * pi, 300, 4)) / 1e5
 
 itp = interpolate(abs.(ETHz), BSpline(Cubic()))
 
 iETHz = itp(1:0.5:1024, 1:0.5:2048)
 
 _, I = findmax(abs.(iETHz))
-M, ML = extrema(real.(iETHz))
 
 itp = interpolate(real.(ETHz), BSpline(Cubic()))
 iETHz = itp(1:0.5:1024, 1:0.5:2048)
 
-p = Plot(contour(x=range(extrema(t)..., 2048), y=range(extrema(x)..., 4096), z=real(circshift(iETHz, (1024 - I[1], 0)))', colorscale=[[0, "#000050"], [0.25, "#0000EF"], [0.5, "#FFFFFF"], [0.75, "#EF0000"], [1, "#500000"]], line_width=0, contours_start=-3300, contours_end=3300, contours_size=33, line_smoothing=1, colorbar=colorbar_field), merge(lout_general, lout_thz))
+M, ML = extrema(real.(iETHz))
+
+p = Plot(contour(x=range(extrema(t)..., 2048), y=range(extrema(x)..., 4096), z=real(circshift(iETHz, (1024 - I[1], 0)))', colorscale=[[0, "#000050"], [0.25, "#0000EF"], [0.5, "#FFFFFF"], [0.75, "#EF0000"], [1, "#500000"]], line_width=0, contours_start=-600, contours_end=600, contours_size=8, line_smoothing=1, colorbar=colorbar_field), merge(lout_general, lout_thz))
 #display(plot(p))
-savefig(p, "100gwfield4mm_new.svg", width=640, height=480) =#
+savefig(p, "tibai_answer.png", width=640, height=480, scale=5) =#
 
 ################ Spectrum plots ################
 
@@ -104,7 +105,7 @@ nu = read(FID["/omega"]) / 1e12 / 2 / pi
 nu .-= nu[1]
 x = read(FID["/x"]) * 1e3
 
-ATHz = (read(FID["201/ATHz_xo"]))# * 2 * nTHzo(1.5e12 * 2 * pi, 300, 4) / (1 + nTHzo(1.5e12 * 2 * pi, 300, 4)) / 1e5
+ATHz = (read(FID["130/ATHz_xo"]))# * 2 * nTHzo(1.5e12 * 2 * pi, 300, 4) / (1 + nTHzo(1.5e12 * 2 * pi, 300, 4)) / 1e5
 
 itp = interpolate(abs.(ATHz), BSpline(Cubic()))
 
@@ -115,14 +116,16 @@ M, ML = extrema(abs.(iATHz))
 
 p = Plot(contour(x=range(extrema(nu)..., 2048), y=range(extrema(x)..., 4096), z=abs.(iATHz)' ./ MX, colorscale="Jet", line_width=0, contours_start=0, contours_end=1, contours_size=5e-3, line_smoothing=1, colorbar=colorbar_spectr), merge(lout_general, lout_thz_spectr))
 #display(plot(p))
-savefig(p, "100gwspect4mm.svg", width=640, height=480) =#
+savefig(p, "tibai_answer_spect.png", width=640, height=480, scale = 5) =#
 
 ################ Slices ################
 
-#= FID = h5open(calcdir * "/100gw1psfull8mm.hdf5", "r")
+FID = h5open(calcdir * "/100gw1psfull8mm.hdf5", "r")
 t = read(FID["/t"]) * 1e12
 x = read(FID["/x"]) * 1e3
-
+nu = read(FID["/omega"])
+nu .-= nu[1]
+nu ./= 2 * pi * 1e12
 ix = range(extrema(t)..., 20480)
 iy = range(extrema(x)..., 4096)
 
@@ -136,6 +139,10 @@ println("Residual = $(oset_1-I_offset_1*diy)")
 
 ETHz = (read(FID["201/ATHz_xt"])) * 2 * nTHzo(1.5e12 * 2 * pi, 300, 4) / (1 + nTHzo(1.5e12 * 2 * pi, 300, 4)) / 1e5
 
+ATHz = abs.(read(FID["201/ATHz_xo"])) # * 2 * nTHzo(1.5e12 * 2 * pi, 300, 4) / (1 + nTHzo(1.5e12 * 2 * pi, 300, 4)) / 1e5
+spMax, _ = findmax(ATHz);
+ATHz ./= spMax;
+
 itp = interpolate(abs.(ETHz), BSpline(Cubic(Line(OnCell()))))
 
 iETHz = itp(1:0.5:1024, 1:0.5:2048)
@@ -144,16 +151,22 @@ _, I = findmax(abs.(iETHz))
 M, ML = extrema(real.(iETHz))
 
 itp = interpolate(real(ETHz), BSpline(Cubic(Line(OnCell()))))
+sitp = interpolate(abs.(ATHz), BSpline(Cubic(Line(OnCell()))))
 
 iETHz = itp(1:0.5:1024, 1:0.5:2048)
+iATHz = sitp(1:1:1024, 1:0.5:2048)
 
 data_1 = real(circshift(iETHz[:, I[2]], (1024 - I[1])))
 data_2 = real(circshift(iETHz[:, I[2]+I_offset_1], (1024 - I[1])))
 data_3 = real(circshift(iETHz[:, I[2]+I_offset_2], (1024 - I[1])))
 
-idata_1 = interpolate(data_1,BSpline(Cubic(Line(OnCell()))))
-idata_2 = interpolate(data_2,BSpline(Cubic(Line(OnCell()))))
-idata_3 = interpolate(data_3,BSpline(Cubic(Line(OnCell()))))
+s_data_1 = iATHz[:, I[2]]
+s_data_2 = iATHz[:, I[2]+I_offset_1]
+s_data_3 = iATHz[:, I[2]+I_offset_2]
+
+idata_1 = interpolate(data_1, BSpline(Cubic(Line(OnCell()))))
+idata_2 = interpolate(data_2, BSpline(Cubic(Line(OnCell()))))
+idata_3 = interpolate(data_3, BSpline(Cubic(Line(OnCell()))))
 
 s_1 = scatter(x=ix, y=idata_1(collect(1:0.1:2047)), line_shape="spline", name="0 mm")
 
@@ -164,8 +177,15 @@ s_3 = scatter(x=ix, y=idata_3(collect(1:0.1:2047)), line_shape="spline", name="0
 
 p = Plot([s_1, s_2, s_3], merge(lout_general, lout_thz1D))
 
+ss_1 = scatter(x=nu, y=s_data_1, line_shape="spline", name="0 mm")
+ss_2 = scatter(x=nu, y=s_data_2, line_shape="spline", name="-0.75 mm")
+ss_3 = scatter(x=nu, y=s_data_3, line_shape="spline", name="0.75 mm")
+
+
+pp = Plot([ss_1, ss_2, ss_3], merge(lout_general, lout_thz1D_spectr))
 #display(plot(p))
-savefig(plot(p), "4mm-slice.svg") =#
+savefig(plot(p), "tibai_ans2_t.png", width=560, height=480, scale=5)
+savefig(plot(pp), "tibai_ans2_s.png", width=560, height=480, scale=5)
 
 ################ THz beam intensity profile ################
 
@@ -195,15 +215,15 @@ savefig(p, "100gw6mmintprofile.svg", width=640, height=480) =#
 
 ################ THz Centroid Frequency Profile ################
 
-FID = h5open(calcdir * "/20gw1psfull8mm.hdf5", "r")
-x = read(FID["/x"]) * 1e3
-z = getSavePoints(FID) * 1e3
-thzprofile = getCentralFrequency(FID)
-#MX, _ = findmax(thzprofile, dims=2)
-#thzSlice = thzprofile[291, :]
-MX, _ = findmax(thzprofile)
-
-p = Plot(contour(x=z, y=x, z=thzprofile', colorscale="Jet", line_width=0, line_smoothing=1, contours_start=0,contours_end=3,contours_size=0.02, colorbar=colorbar_dist_spect), merge(lout_general, lout_dist_spect))
-
-#display(plot(p))
-savefig(p, "dist_spect_20gw.png", width=640, height=480, scale = 5)
+#FID = h5open(calcdir * "/20gw1psfull8mm.hdf5", "r")
+#x = read(FID["/x"]) * 1e3
+#z = getSavePoints(FID) * 1e3
+#thzprofile = getCentralFrequency(FID)
+##MX, _ = findmax(thzprofile, dims=2)
+##thzSlice = thzprofile[291, :]
+#MX, _ = findmax(thzprofile)
+#
+#p = Plot(contour(x=z, y=x, z=thzprofile', colorscale="Jet", line_width=0, line_smoothing=1, contours_start=0, contours_end=3, contours_size=0.02, colorbar=colorbar_dist_spect), merge(lout_general, lout_dist_spect))
+#
+##display(plot(p))
+#savefig(p, "dist_spect_20gw.png", width=640, height=480, scale=5)

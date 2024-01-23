@@ -1,17 +1,17 @@
-using CUDA
+using CUDA, Base.Threads
 include("typedefs.jl")
 
-function imp_terjedes(t, Y, PFC::pumpFieldConstants, RTC::runTimeConstants)
+function imp_terjedes(t, Y, PFC::pumpFieldConstantsGPU, RTC::runTimeConstantsGPU)
   dAdz = -1im .* PFC.kx_omega .* RTC.ckx ./ PFC.kz_omega .* Y .+ 1im .* RTC.ckx .^ 2 ./ 2 ./ PFC.kz_omega .* Y
   return dAdz
 end
 
-function imp_terjedesSH(t, Y, SFC::SHFieldConstants, RTC::runTimeConstants)
+function imp_terjedesSH(t, Y, SFC::SHFieldConstantsGPU, RTC::runTimeConstantsGPU)
   dAdz = -1im .* SFC.kx_omegaSHG .* RTC.ckx ./ SFC.kz_omegaSHG .* Y + 1im .* RTC.ckx .^ 2 ./ 2 ./ SFC.kz_omegaSHG .* Y
   return dAdz
 end
 
-function thz_generation(t, Y, misc::miscInputs)
+function thz_generation(t, Y, misc::miscInputsGPU)
   Eop = misc.FOPS.ifft_kx_x * ifftshift(Y, 2) * misc.RTC.kxMax .* exp.(-1im .* misc.PFC.kx_omega .* misc.RTC.cx - 1im .* misc.PFC.kz_omega .* t)
   conv_part = fast_forward_convolution(Eop, conj(Eop), misc.RTC, misc.FOPS) * misc.NC.e0 * misc.RTC.khi_eff * misc.RTC.dOmega
   return fftshift(misc.FOPS.fft_x_kx * (conv_part), 2) ./ misc.RTC.kxMax
@@ -30,7 +30,7 @@ function thz_egyszeru(t, Y)
   return cat(dAopdz.result, dTHz_gen.result, zeros(size(Aop)), dims=3)
 end
 
-function plan_fast_conv(a, b, RT::runTimeConstants)
+function plan_fast_conv(a, b, RT::runTimeConstantsGPU)
   a_ = vcat(RT.padding, a)
   b_ = vcat(b, RT.padding)
   _, fast_conv_plan = FourierTools.plan_conv(a_, b_, 1)
@@ -38,31 +38,31 @@ function plan_fast_conv(a, b, RT::runTimeConstants)
   return fast_conv_plan, fast_conv_fft_plan
 end
 
-function fast_forward_convolution(a, b, RT::runTimeConstants, FO::fourierOperations)
+function fast_forward_convolution(a, b, RT::runTimeConstantsGPU, FO::fourierOperations)
   a_ = vcat(RT.padding, a)
   b_ = vcat(b, RT.padding)
   return FO.fast_conv_plan(circshift(a_, (1, 0)), FO.fast_conv_fft_plan * (reverse((b_), dims=(1))))[floor(Int, end / 2)+1:end, :]
 end
 
-function fast_backward_convolution(a, b, RT::runTimeConstants, FO::fourierOperations)
+function fast_backward_convolution(a, b, RT::runTimeConstantsGPU, FO::fourierOperations)
   a_ = vcat(RT.padding, a)
   b_ = vcat(b, RT.padding)
   return reverse(FO.fast_conv_plan(circshift(reverse(a_, dims=1), (1, 0)), FO.fast_conv_fft_plan * (reverse((b_), dims=(1)))), dims=1)[floor(Int, end / 2)+1:end, :]
 end
 
-function fast_forward_convolution_SHG(a, b, RT::runTimeConstants, FO::fourierOperations)
+function fast_forward_convolution_SHG(a, b, RT::runTimeConstantsGPU, FO::fourierOperations)
   a_ = circshift(vcat(RT.padding, a), (RT.SHG_SHIFT, 0))
   b_ = circshift(vcat(b, RT.padding), (-RT.SHG_SHIFT, 0))
   return FO.fast_conv_plan(circshift(a_, (1, 0)), FO.fast_conv_fft_plan * (reverse((b_), dims=(1))))[floor(Int, end / 2)+1:end, :]
 end
 
-function fast_backward_convolution_SHG(a, b, RT::runTimeConstants, FO::fourierOperations)
+function fast_backward_convolution_SHG(a, b, RT::runTimeConstantsGPU, FO::fourierOperations)
   a_ = circshift(vcat(RT.padding, a), (-RT.SHG_SHIFT, 0))
   b_ = circshift(vcat(b, RT.padding), (-RT.SHG_SHIFT, 0))
   return reverse(FO.fast_conv_plan(circshift(reverse(a_, dims=1), (1, 0)), FO.fast_conv_fft_plan * (reverse((b_), dims=(1)))), dims=1)[floor(Int, end / 2)+1:end, :]
 end
 
-function thz_cascade(t, Aop, ATHz, misc::miscInputs)
+function thz_cascade(t, Aop, ATHz, misc::miscInputsGPU)
   Eop = @spawn misc.FOPS.ifft_kx_x * ifftshift(Aop, 2) * misc.RTC.kxMax .* exp.(-1im .* misc.PFC.kx_omega .* misc.RTC.cx - 1im .* misc.PFC.kz_omega .* t)
   ETHz = @spawn misc.FOPS.ifft_kx_x * ifftshift(ATHz .* misc.RTC.kxMax .* exp.(-1im .* misc.TFC.kz_omegaTHz .* t), 2)
   wait.([Eop, ETHz])
@@ -89,7 +89,7 @@ function thz_feedback(t, Y)
   return cat(dAop_lin.result .- dAopCsc.result .* 1im .* comega .^ 2 ./ 2 ./ kz_omega ./ e0 ./ c0 .^ 2, dTHz_gen.result, zeros(size(Aop)), dims=3)
 end
 
-function n2calc(t, Aop, misc::miscInputs)
+function n2calc(t, Aop, misc::miscInputsGPU)
   mult1 = @spawn -2 .* misc.PFC.kz_omega .* misc.NC.e0 .* misc.NC.c0 .^ 2 ./ misc.RTC.comega .^ 2
   Eop = @spawn misc.FOPS.ifft_o_t * ifftshift(misc.FOPS.ifft_kx_x * ifftshift(Aop, 2) * misc.RTC.kxMax .* exp.(-1im .* misc.PFC.kx_omega .* misc.RTC.cx - 1im .* misc.PFC.kz_omega .* t), 1) * misc.RTC.omegaMax
   mult2 = misc.NC.e0 * misc.RTC.omega0 * neo(misc.RTC.lambda0, 300, misc.RTC.cry) * n2value(misc.RTC.cry) / 2
@@ -120,13 +120,13 @@ function thz_feedback_n2(t, Y)
   return cat(dAop_lin.result .- sum_dAop.result .* 1im .* comega .^ 2 ./ 2 ./ kz_omega ./ e0 ./ c0 .^ 2, dTHz_gen.result, zeros(size(Aop)), dims=3)
 end
 
-function SHG_GEN(t, Aop, misc::miscInputs)
+function SHG_GEN(t, Aop, misc::miscInputsGPU)
   Eop = misc.FOPS.ifft_kx_x * ifftshift(Aop, 2) * misc.RTC.kxMax .* exp.(-1im .* misc.PFC.kx_omega .* misc.RTC.cx - 1im .* misc.PFC.kz_omega .* t)
   temp_val = misc.NC.e0 .* misc.RTC.d_eff .* fast_backward_convolution_SHG(Eop, Eop, misc.RTC, misc.FOPS)
   return fftshift(misc.FOPS.fft_x_kx * (temp_val .* exp.(+1im .* misc.SFC.kx_omegaSHG .* misc.RTC.cx)) ./ misc.RTC.kxMax .* misc.RTC.dOmega, 2)
 end
 
-function SH_OP_INTERACTION(t, Aop, ASH, misc::miscInputs)
+function SH_OP_INTERACTION(t, Aop, ASH, misc::miscInputsGPU)
   Eop = @spawn misc.FOPS.ifft_kx_x * ifftshift(Aop, 2) * misc.RTC.kxMax .* exp.(-1im .* misc.PFC.kx_omega .* misc.RTC.cx - 1im .* misc.PFC.kz_omega .* t)
   ESH = @spawn misc.FOPS.ifft_kx_x * ifftshift(ASH, 2) * misc.RTC.kxMax .* exp.(-1im .* misc.SFC.kx_omegaSHG .* misc.RTC.cx - 1im .* misc.SFC.kz_omegaSHG .* t)
   wait.([Eop, ESH])
@@ -135,7 +135,7 @@ function SH_OP_INTERACTION(t, Aop, ASH, misc::miscInputs)
   return fftshift(misc.FOPS.fft_x_kx * (conv_part .* exp.(+1im .* misc.PFC.kx_omega .* misc.RTC.cx)) ./ misc.RTC.kxMax, 2)
 end
 
-function thz_feedback_n2_SHG(t, Y::compositeInput, misc::miscInputs)
+function thz_feedback_n2_SHG(t, Y::compositeInputGPU, misc::miscInputsGPU)
   Aop = Y.Akxo
   ATHz = Y.ATHz_kx_o
   ASH = Y.ASH
@@ -159,6 +159,6 @@ function thz_feedback_n2_SHG(t, Y::compositeInput, misc::miscInputs)
   end
 
   wait.([sum_dAop, dTHz_gen, dAop_lin, dASHlin])
-  return compositeInput(dAop_lin.result .- sum_dAop.result .* 1im .* misc.RTC.comega .^ 2 ./ 2 ./ misc.PFC.kz_omega ./ misc.NC.e0 ./ misc.NC.c0 .^ 2,
+  return compositeInputGPU(dAop_lin.result .- sum_dAop.result .* 1im .* misc.RTC.comega .^ 2 ./ 2 ./ misc.PFC.kz_omega ./ misc.NC.e0 ./ misc.NC.c0 .^ 2,
     dTHz_gen.result, dASHlin.result .- dASHNL.result .* 1im .* misc.RTC.comegaSHG .^ 2 ./ 2 ./ misc.SFC.kz_omegaSHG ./ misc.NC.e0 ./ misc.NC.c0 .^ 2)
 end

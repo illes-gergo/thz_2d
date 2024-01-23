@@ -1,9 +1,11 @@
-function gauss_impulzus(E0, sigma_t, sigma_x, omega0, lambda0, gamma, t, x)
-    c0 = 3e8
-    return E0 .* exp.(-2 .* log(2) .* t .^ 2 ./ sigma_t .^ 2) .*
-           exp.(-x .^ 2 ./ sigma_x .^ 2) .* exp.(1im .* omega0 .* t) .* exp.(-1im .* sin(gamma) .* x ./ lambda0 .* 2 .* pi * neo(lambda0, 300, cry))
+include("typedefs.jl")
+
+function gauss_impulzus(inputs::gaussVars)
+  c0 = 3e8
+  return inputs.E0 .* exp.(-2 .* log(2) .* inputs.t .^ 2 ./ inputs.sigma_t .^ 2) .*
+         exp.(-inputs.x .^ 2 ./ inputs.sigma_x .^ 2) .* exp.(1im .* inputs.omega0 .* inputs.t) .* exp.(-1im .* sin(inputs.gamma) .* inputs.x ./ inputs.lambda0 .* 2 .* pi * neo(inputs.lambda0, 300, inputs.cry))
 end
-function gauss_impulzus_omega0(E0, sigma_t, sigma_x, lambda0, gamma, t, x)
-    return E0 .* exp.(-2 .* log(2) .* t .^ 2 ./ sigma_t .^ 2) .*
-           exp.(-x .^ 2 ./ sigma_x .^ 2) .* exp.(-1im .* sin(gamma) .* x ./ lambda0 .* 2 .* pi * neo(lambda0, 300, cry))
+function gauss_impulzus_omega0(inputs::gaussVars)
+  return inputs.E0 .* exp.(-2 .* log(2) .* inputs.t .^ 2 ./ inputs.sigma_t .^ 2) .*
+         exp.(-inputs.x .^ 2 ./ inputs.sigma_x .^ 2) .* exp.(-1im .* sin(inputs.gamma) .* inputs.x ./ inputs.lambda0 .* 2 .* pi * neo(inputs.lambda0, 300, inputs.cry))
 end
