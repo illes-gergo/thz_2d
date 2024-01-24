@@ -29,18 +29,20 @@ struct gaussVars
   cry::Int
 end
 
-mutable struct compositeInput
-  Akxo::Array{ComplexF64,2}
-  ATHz_kx_o::Array{ComplexF64,2}
-  ASH::Array{ComplexF64,2}
-end
-
 mutable struct compositeInputGPU
   Akxo::CuArray{ComplexF64,2}
   ATHz_kx_o::CuArray{ComplexF64,2}
   ASH::CuArray{ComplexF64,2}
 end
 
+mutable struct compositeInput
+  Akxo::Array{ComplexF64,2}
+  ATHz_kx_o::Array{ComplexF64,2}
+  ASH::Array{ComplexF64,2}
+  function compositeInput(inp::compositeInputGPU)
+    new(Array(inp.Akxo), Array(inp.ATHz_kx_o), Array(inp.ASH))
+  end
+end
 function +(a::compositeInput, b::compositeInput)
   return compositeInput(a.Akxo .+ b.Akxo, a.ATHz_kx_o .+ b.ATHz_kx_o, a.ASH .+ b.ASH)
 end

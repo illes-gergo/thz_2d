@@ -92,11 +92,14 @@ function runcalc()
   FOPS = fourierOperations(plan_fft(Axt, 1), plan_fft(Axt, 2), plan_ifft(Axt, 1), plan_ifft(Axt, 2), plan_fast_conv(Axt, Axt, RTC)...)
 
 
+  RTCCPU = runTimeConstants(kxMax, cx, d_eff, khi_eff, dOmega, padding, SHG_SHIFT, ckx, comega, comegaTHz, comegaSHG, omegaMax, lambda0, omega0, inputs.cry)
+  FOPSCPU = fourierOperations(plan_fft(Array(Axt), 1), plan_fft(Array(Axt), 2), plan_ifft(Array(Axt), 1), plan_ifft(Array(Axt), 2), plan_fast_conv(Array(Axt), Array(Axt), RTCCPU)...)
+
   misc = miscInputsGPU(FOPS, naturalConstants(), RTC, TFC, PFC, SFC)
 
   Axo = fftshift(FOPS.fft_t_o * Axt, 1) ./ RTC.omegaMax .* exp.(+1im .* PFC.kx_omega .* RTC.cx)
   Akxo = fftshift(FOPS.fft_x_kx * Axo / RTC.kxMax, 2)
-  z = CuArray{Float64}(undef, floor(Int, inputs.z_end / inputs.dz))
+  z = Array{Float64,1}(undef, floor(Int, inputs.z_end / inputs.dz))
   #error("stop")
   ATHz_kx_o = CuArray(zeros(size(Akxo)))
 
@@ -110,7 +113,7 @@ function runcalc()
   #STR = Dates.format(now(), "YYYY-MM-DD hh-mm-ss")
 
   #global Axo_prew = zeros(size(Axo))
-  #FID = h5open(STR * ".hdf5", "w")
+  FID = h5open(inputs.STR * ".hdf5", "w")
   entryCounter::Int = 1
   #STR = "elojel_minusz"
   #error()
@@ -124,43 +127,43 @@ function runcalc()
     end
 
     #if (mod(ii, 100) == 0 || ii == 1 ) && false
-    if false#(ii == length(z) - 1 || mod(ii, 20) == 0 || ii == 1)
-
-      Aop_kx_o = A_kompozit.Akxo
-      Axo = FOPS.ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
-      Axt = FOPS.ifft_o_t * ifftshift(Axo .* omegaMax, 1)
-      Aop_kx_oSH = A_kompozit.ASH
-      AxoSH = FOPS.ifft_kx_x * ifftshift(Aop_kx_oSH, 2) .* kxMax .* exp.(-1im .* kx_omegaSHG .* cx - 1im .* kz_omegaSHG .* z[ii+1])
-      AxtSH = FOPS.ifft_o_t * ifftshift(AxoSH .* omegaMax, 1)
+    if (ii == length(z) - 1 || mod(ii, 20) == 0 || ii == 1)
+      A_kompozitCPU = compositeInput(A_kompozit)
+      Aop_kx_o = A_kompozitCPU.Akxo
+      Axo = FOPSCPU.ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
+      Axt = FOPSCPU.ifft_o_t * ifftshift(Axo .* omegaMax, 1)
+      Aop_kx_oSH = A_kompozitCPU.ASH
+      AxoSH = FOPSCPU.ifft_kx_x * ifftshift(Aop_kx_oSH, 2) .* kxMax .* exp.(-1im .* kx_omegaSHG .* cx - 1im .* kz_omegaSHG .* z[ii+1])
+      AxtSH = FOPSCPU.ifft_o_t * ifftshift(AxoSH .* omegaMax, 1)
 
       #p1 = heatmap(x, t, abs.(Axt .* exp.(1im .* omega0 .* ct) .* 1e-8), linewidth=0, colormap=:jet)
       #p3 = heatmap(x, omega, abs.(Axo - Axo_prew), colormap=:jet)
       #p4 = heatmap(x, t, abs.(AxtSH .* exp.(2im .* omega0 .* ct) .* 1e-8), linewidth=0, colormap=:jet)
-      ATHz_kx_o = A_kompozit.ATHz_kx_o
-      ATHz_xo = FOPS.ifft_kx_x * ifftshift(ATHz_kx_o .* exp.(-1im .* k_omegaTHz .* z[ii+1]), 2) .* kxMax
-      ATHz_xt = FOPS.ifft_o_t * ATHz_xo * omegaMax
+      ATHz_kx_o = A_kompozitCPU.ATHz_kx_o
+      ATHz_xo = FOPSCPU.ifft_kx_x * ifftshift(ATHz_kx_o .* exp.(-1im .* k_omegaTHz .* z[ii+1]), 2) .* kxMax
+      ATHz_xt = FOPSCPU.ifft_o_t * ATHz_xo * omegaMax
       #p2 = heatmap(x, t, real.(ATHz_xt) * 1e-5, linewidth=0, colormap=:jet)
       _, max_indices = findmax(abs.(Axt))
       #(scatter!([x[max_indices[2]]], [t[max_indices[1]]]))
       # display(plot(p1, p2, p3, p4, layout=(2, 2), size=[1200, 900]))
       #global Axo_prew = copy(Axo)
       #display(heatmap(x, t, abs.(ATHz_kx_o), linewidth=0, colormap=:jet))
-      #=        FID["/"*string(entryCounter)*"/Eop"] = Axt
-              FID["/"*string(entryCounter)*"/Aop"] = Axo
-              FID["/"*string(entryCounter)*"/ASH"] = AxoSH
-              FID["/"*string(entryCounter)*"/ATHz_xo"] = ATHz_xo
-              FID["/"*string(entryCounter)*"/ATHz_xt"] = ATHz_xt
-            =#
+      FID["/"*string(entryCounter)*"/Eop"] = Axt
+      FID["/"*string(entryCounter)*"/Aop"] = Axo
+      FID["/"*string(entryCounter)*"/ASH"] = AxoSH
+      FID["/"*string(entryCounter)*"/ATHz_xo"] = ATHz_xo
+      FID["/"*string(entryCounter)*"/ATHz_xt"] = ATHz_xt
+
       entryCounter += 1
     end
     display(ii)
   end
-  #=FID["/maxEntry"] = entryCounter - 1
+  FID["/maxEntry"] = entryCounter - 1
   FID["/gamma"] = rad2deg(gamma)
   FID["/z"] = z
   FID["/omega"] = omega
   FID["/omega0"] = omega0
   FID["/x"] = collect(x)
   FID["/t"] = collect(t)
-  close(FID)=#
+  close(FID)
 end

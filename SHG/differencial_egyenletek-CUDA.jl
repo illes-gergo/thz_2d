@@ -38,6 +38,14 @@ function plan_fast_conv(a, b, RT::runTimeConstantsGPU)
   return fast_conv_plan, fast_conv_fft_plan
 end
 
+function plan_fast_conv(a, b, RT::runTimeConstants)
+  a_ = vcat(RT.padding, a)
+  b_ = vcat(b, RT.padding)
+  _, fast_conv_plan = FourierTools.plan_conv(a_, b_, 1)
+  fast_conv_fft_plan = plan_fft(b_, 1)
+  return fast_conv_plan, fast_conv_fft_plan
+end
+
 function fast_forward_convolution(a, b, RT::runTimeConstantsGPU, FO::fourierOperations)
   a_ = vcat(RT.padding, a)
   b_ = vcat(b, RT.padding)
