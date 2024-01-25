@@ -29,17 +29,27 @@ struct gaussVars
   cry::Int
 end
 
-mutable struct compositeInputGPU
+
+struct compositeInputGPU
   Akxo::CuArray{ComplexF64,2}
   ATHz_kx_o::CuArray{ComplexF64,2}
   ASH::CuArray{ComplexF64,2}
 end
 
-mutable struct compositeInput
+function checkNaN(gpuComposite::compositeInputGPU)
+  println("$(sum(isnan.(gpuComposite.Akxo))) NaNs in pump")
+  println("$(sum(isnan.(gpuComposite.ATHz_kx_o))) NaNs in THz")
+  println("$(sum(isnan.(gpuComposite.ASH))) NaNs in SH")
+end
+
+struct compositeInput
   Akxo::Array{ComplexF64,2}
   ATHz_kx_o::Array{ComplexF64,2}
   ASH::Array{ComplexF64,2}
   function compositeInput(inp::compositeInputGPU)
+    if sum(isnan.(inp.Akxo)) > 0
+      println("NaN values not handled at fetch!")
+    end
     new(Array(inp.Akxo), Array(inp.ATHz_kx_o), Array(inp.ASH))
   end
 end
@@ -67,7 +77,7 @@ end
 
 # MethodError: no method matching *(::Float64, ::compositeInputGPU)
 function *(a::Float64, b::compositeInputGPU)
-  return (compositeInputGPU(a .* b.Akxo, a * b.ATHz_kx_o, a * b.ASH))
+  return (compositeInputGPU(a .* b.Akxo, a .* b.ATHz_kx_o, a .* b.ASH))
 end
 
 # ERROR: MethodError: no method matching +(::compositeInputGPU, ::compositeInputGPU)
@@ -84,6 +94,11 @@ end
 #  MethodError: no method matching /(::compositeInputGPU, ::Int64)
 function /(a::compositeInputGPU, b::Int)
   return compositeInputGPU(a.Akxo ./ b, a.ATHz_kx_o ./ b, a.ASH ./ b)
+end
+# ERROR: MethodError: no method matching +(::compositeInputGPU, ::CuArray{ComplexF64, 2, CUDA.Mem.DeviceBuffer})
+
+function +(a::compositeInputGPU, b::CuArray{ComplexF64,2})
+  return compositeInputGPU(a.Akxo .+ b, a.ATHz_kx_o .+ b, a.ASH .+ b)
 end
 
 struct fourierOperations
