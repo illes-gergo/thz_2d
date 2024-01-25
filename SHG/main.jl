@@ -110,7 +110,7 @@ function runcalc()
   #STR = Dates.format(now(), "YYYY-MM-DD hh-mm-ss")
 
   #global Axo_prew = zeros(size(Axo))
-  #FID = h5open(STR * ".hdf5", "w")
+  FID = h5open(inputs.STR * ".hdf5", "w")
   entryCounter::Int = 1
   #STR = "elojel_minusz"
   #error()
@@ -145,22 +145,22 @@ function runcalc()
       # display(plot(p1, p2, p3, p4, layout=(2, 2), size=[1200, 900]))
       #global Axo_prew = copy(Axo)
       #display(heatmap(x, t, abs.(ATHz_kx_o), linewidth=0, colormap=:jet))
-      #=        FID["/"*string(entryCounter)*"/Eop"] = Axt
+              FID["/"*string(entryCounter)*"/Eop"] = Axt
               FID["/"*string(entryCounter)*"/Aop"] = Axo
               FID["/"*string(entryCounter)*"/ASH"] = AxoSH
               FID["/"*string(entryCounter)*"/ATHz_xo"] = ATHz_xo
               FID["/"*string(entryCounter)*"/ATHz_xt"] = ATHz_xt
-            =#
+           
       entryCounter += 1
     end
     display(ii)
   end
-  #=FID["/maxEntry"] = entryCounter - 1
-  FID["/gamma"] = rad2deg(gamma)
+  FID["/maxEntry"] = entryCounter - 1
+  FID["/gamma"] = rad2deg(inputs.gamma)
   FID["/z"] = z
   FID["/omega"] = omega
   FID["/omega0"] = omega0
-  FID["/x"] = collect(x)
-  FID["/t"] = collect(t)
-  close(FID)=#
+  FID["/x"] = collect(inputs.x)
+  FID["/t"] = collect(inputs.t)
+  close(FID)
 end
